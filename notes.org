@@ -1,0 +1,3 @@
+* genetics
+** implement using cl-opengl
+** genetic algorithm
