@@ -3,4 +3,5 @@
 (in-package :cl-user)
 
 (defpackage #:genetics
-  (:use #:cl))
+  (:use #:cl)
+  (:export #:main))

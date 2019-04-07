@@ -1,3 +1,25 @@
+#+STARTUP: hidestars
+
 * genetics
+
 ** implement using cl-opengl
+
 ** genetic algorithm
+
+* sdl2
+
+** trouble
+
+*** How to show window?
+
+*** DONE main thread problem in SBCL
+
+**** reference
+     http://www.jonathanfischer.net/quick-notes-cepl-macos/
+
+***** codes in ~/.swank.lisp
+      #+BEGIN_SRC emacs-lisp
+      #+sbcl (setf swank:*communication-style* nil)
+      #+END_SRC emacs-lisp
+
+***** (sdl2:make-this-thread-main #'main) in REPL

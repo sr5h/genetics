@@ -8,7 +8,9 @@
   :source-control (:git "https://github.com/sr5h/genetics.git")
   :bug-tracker "https://github.com/sr5h/genetics/issues"
   :version "0.0.1"
-  :encoding :utf-8
+  ;; :encoding :utf-8
+  :depends-on (#:cl-opengl
+	       #:sdl2)
   :pathname "src"
   :serial t
   :components
