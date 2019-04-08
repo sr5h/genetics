@@ -9,8 +9,9 @@
   :bug-tracker "https://github.com/sr5h/genetics/issues"
   :version "0.0.1"
   ;; :encoding :utf-8
-  :depends-on (#:cl-opengl
-	       #:sdl2)
+  :depends-on (#:sdl2
+	       #:cl-opengl
+	       )
   :pathname "src"
   :serial t
   :components

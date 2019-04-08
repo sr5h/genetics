@@ -1,4 +1,6 @@
 #+STARTUP: hidestars
+#+STARTUP: showeverything
+#+TODO: TODO(t) WAIT(w@/!) | SOLVED(s@) CANCELED(c@)
 
 * genetics
 
@@ -8,18 +10,73 @@
 
 * sdl2
 
-** trouble
+** troubles
 
-*** How to show window?
+*** SOLVED How to show window?
 
-*** DONE main thread problem in SBCL
+    - State "SOLVED" from [2019-04-08 Mon 17:50] \\
+      Adding/clarifying above: If you find that SDL_GetError() isn't
+      reporting anything and SDL_UpdateWindowSurface() / etc are
+      reporting 0 (no errors) then its more than likely that the above
+      code will be the fix, particularly on OSX. You would place the
+      event polling loop after your video setup/init/and initial draw
+      call. The original SDL SDK samples used to include the polling
+      but online tutorials typically include this much later in the
+      process (handling input) which can cause confusion. – Jonathan
+      M. May 14 '18 at 18:59
+**** version check
 
-**** reference
-     http://www.jonathanfischer.net/quick-notes-cepl-macos/
+***** openGL 4.1 INTEL-12.4.7
 
-***** codes in ~/.swank.lisp
-      #+BEGIN_SRC emacs-lisp
-      #+sbcl (setf swank:*communication-style* nil)
-      #+END_SRC emacs-lisp
+***** MAC OS X 10.14.3 Mojave MacBookAir6.1 
 
-***** (sdl2:make-this-thread-main #'main) in REPL
+    
+
+*** SOLVED main thread problem in SBCL
+
+    - State "SOLVED"     from              [2019-04-08 Mon 17:48]
+
+**** SOLUTION II 
+
+     ENVIRONMENTS (SDL2 + SLIME + SBCL + EMACS + MAC)
+
+     The reason why I need my solution is that I don't want to be
+     fixed other environments in the specific problem.
+
+****** 1. just modify codes for main thread problem in SBCL.
+
+******* codes
+	#+BEGIN_SRC emacs-lisp
+	(defun main ()
+          (bt:interrupt-thread
+	    (sb-thread:main-thread)
+	    (lambda ()
+	      (sdl2:make-this-thread-main ;; why need? if not, not work.
+		(lambda ()
+	          (sdl-main))))))
+	#+END_SRC emacs-lisp
+
+****** 2. play with (main) in REPL :D (examples)
+
+******* codes
+	#+BEGIN_SRC emacs-lisp
+	(ql:quickload :genetics)
+	(in-package :genetics)
+	(main)
+	#+END_SRC emacs-lisp
+
+**** SOLUTION II (googling)
+
+***** reference
+      http://www.jonathanfischer.net/quick-notes-cepl-macos/
+
+****** codes in ~/.swank.lisp
+       #+BEGIN_SRC emacs-lisp
+       #+sbcl (setf swank:*communication-style* nil)
+       #+END_SRC emacs-lisp
+
+****** (sdl2:make-this-thread-main #'main) in REPL
+
+** find way to implement using the referece of cl-sdl2
+
+*** how to find flags of sdl2 in the reference?
