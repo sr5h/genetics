@@ -11,10 +11,19 @@
   ;; :encoding :utf-8
   :depends-on (#:sdl2
 	       #:cl-opengl
+	       ;; #:oop
 	       )
   :pathname "src"
   :serial t
   :components
   ((:file "package")
-   (:file "display")   
+   (:file "aux")
+   (:file "matrix")
+   (:file "glsl-program")
+   (:file "sprites")
+   (:file "model")
+   ;; (:file "point")
+   ;; (:file "triangle")
+   ;; (:file "rendering1")
+   (:file "main")   
    ))

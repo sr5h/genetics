@@ -8,6 +8,13 @@
 
 ** genetic algorithm
 
+** TODO Be copied argument of function object of function?
+
+*** (defun main-loop (window render-fn) ...)
+
+*** (defmacro main-loop (window render-fn) ...
+
+
 * sdl2
 
 ** troubles
@@ -36,9 +43,13 @@
 
     - State "SOLVED"     from              [2019-04-08 Mon 17:48]
 
+     ENVIRONMENTS (SDL2 + SLIME + SBCL + EMACS + MAC)
+
+**** SOLUTION I
+***** slime-connect in emacs
+
 **** SOLUTION II 
 
-     ENVIRONMENTS (SDL2 + SLIME + SBCL + EMACS + MAC)
 
      The reason why I need my solution is that I don't want to be
      fixed other environments in the specific problem.
@@ -56,16 +67,22 @@
 	          (sdl-main))))))
 	#+END_SRC emacs-lisp
 
-****** 2. play with (main) in REPL :D (examples)
+****** 2. run main program to render using cl-sdl2 in sbcl on either terminal or emacs eshell
 
-******* codes
+******* codes     
 	#+BEGIN_SRC emacs-lisp
+	(ql:quickload :swank)
 	(ql:quickload :genetics)
 	(in-package :genetics)
-	(main)
+	(bt:make-thread (lambda () (swank:create-server :port 4005 :dont-close t)))
+	(sdl2:make-this-thread-main (lambda () (main)))
 	#+END_SRC emacs-lisp
 
-**** SOLUTION II (googling)
+****** 3. connect to created server(port:4005) using SLIME-CONNECT in emacs
+
+****** 4. play coding interactively :D
+       
+**** SOLUTION III (googling)
 
 ***** reference
       http://www.jonathanfischer.net/quick-notes-cepl-macos/
@@ -80,3 +97,27 @@
 ** find way to implement using the referece of cl-sdl2
 
 *** how to find flags of sdl2 in the reference?
+
+* shell
+** api-run-sbcl-swank-server.sh permission denied
+
+*** TODO sudo chmod x api-run-sbcl-swank-server.sh, but permission denied why?
+
+* quickload
+  
+** TODO doesn't quickload in sbcl properly. why?
+
+* OOPs
+
+** Basic Objects
+   
+   1. Messages and Methods convention
+   2. self variable to refer to oneself
+
+** Inheritance
+
+   1. internal superclass instances
+   2. match method directly in object, or get-method from internal instance if needed
+   3. delegation: explicitly use methods from internal objects
+
+** Multiple inheritance
