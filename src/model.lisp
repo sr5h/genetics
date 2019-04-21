@@ -20,7 +20,8 @@
 	(%context nil)
 	(%glsl-program (make-glsl-program))
 	(%sprites (make-sprites))
-	(%state 'PLAY))
+	(%state 'PLAY)
+	)
     
     (labels ((%initialize-system ()
 	       (sdl2:init :video)
@@ -49,27 +50,36 @@
 			 :depth-buffer-bit))
 	     
 	     (%%initialize-shaders ()
-	       (ask %glsl-program 'compile "vertex.shd" "fragment.shd")
-	       (ask %glsl-program 'add-attribute "vertexPosition_modelspace")
+	       (ask %glsl-program 'compile "sprites.vert" "sprites.frag")
+	       ;; (ask %glsl-program 'add-attribute "vertexPosition_modelspace")
 	       (ask %glsl-program 'link))
 
 	     (%initialize-objects ()
 	       (%%initialize-shaders)
-	       (ask %sprites 'init -1.0 -1.0 1.0 1.0))
+	       (ask %sprites 'init -1.0 -1.0 1.0 1.0)) ; TODO
 	     
 	     (%%%draw-model ()
 	       (gl:clear :color-buffer-bit :depth-buffer-bit)
 	       (ask %glsl-program 'use)
+
 	       (draw %sprites)
+
 	       (ask %glsl-program 'unuse)
 	       (sdl2:gl-swap-window %window))
 	     
-	     (%%event-loop ()	       (sdl2:with-event-loop (:method :poll)
+	     (%%event-loop ()
+	       (sdl2:with-event-loop (:method :poll)
 		 (:quit ()
 			(setf %state 'STOP)
 			t)
 		 (:idle ()
-		 	(%%%draw-model))))
+			(let ((cur-tick (sdl2:get-ticks)))
+			
+		 	  (%%%draw-model)
+
+			  (let ((diff (- (sdl2:get-ticks) cur-tick)))
+			    (if (> 16 diff)
+				(sdl2:delay (- 16 diff))))))))
 	     
 	     (%modeling ()
 	       (loop until (eq %state 'STOP)

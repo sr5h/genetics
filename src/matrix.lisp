@@ -1,3 +1,5 @@
+(in-package :genetics)
+
 ;; (loop for i from 0 below dimension
 ;; collect (loop for j from 0 below dimension
 ;;	   collect (if (= i j) 1.0s0 0.0s0)))
@@ -28,7 +30,6 @@
 	       (assert (equal-dimension-last-first-p mat))
 	       (let ((mat-arr (ask mat 'get-array)))
 		 (make-matrix (make-array (list dims-0 (ask mat 'get-dimension 1))
-					  
 		 			  :initial-contents
 					  (labels ((iter (lrow lcol rrow rcol sum acc acc1)
 						     (cond ((= lrow dims-0) acc)
@@ -87,8 +88,8 @@
 	     ;; => setf
 	     (translatef (coords)
 	       (assert (> dims-0 (length coords)))
-	       (if (not (equal-identity-matrix))
-		   (format t "WARNING! It is not IDENTITY MATRIX. But, this translation will be applied.~%"))
+	       ;; (if (not (equal-identity-matrix))
+	       ;; 	   (format t "WARNING! It is not IDENTITY MATRIX. But, this translation will be applied.~%"))
 	       
 	       (labels ((iter (row col cds)
 			  (cond ((null cds) nil) ;^
@@ -101,8 +102,8 @@
 	     ;; => matrix
 	     (translate (coords)
 	       (assert (> dims-0 (length coords)))
-	       (if (not (equal-identity-matrix))
-		   (format t "WARNING! It is not IDENTITY MATRIX. But, this translation will be applied.~%"))
+	       ;; (if (not (equal-identity-matrix))
+	       ;; 	   (format t "WARNING! It is not IDENTITY MATRIX. But, this translation will be applied.~%"))
 	       
 	       (labels (;; (iter (row col cds)
 			;;   (cond ((null cds) nil) ;^
@@ -121,8 +122,8 @@
 	     ;; => matrix
 	     (scale (coords)
 	       (assert (> dims-0 (length coords)))
-	       (if (not (equal-identity-matrix))
-		   (format t "WARNING! It is not IDENTITY MATRIX. But, this scale will be applied.~%"))
+	       ;; (if (not (equal-identity-matrix))
+	       ;; 	   (format t "WARNING! It is not IDENTITY MATRIX. But, this scale will be applied.~%"))
 	       (labels ((iter (row col cds acc acc1)
 			  (cond ((= row dims-0) (make-matrix (make-array (list dims-0 dims-1) :initial-contents acc)))
 				((= col dims-1) (iter (+ row 1) 0 cds (append acc (list acc1)) nil))
@@ -133,8 +134,8 @@
 	     ;; => setf
 	     (scalef (coords)
 	       (assert (> dims-0 (length coords)))
-	       (if (not (equal-identity-matrix))
-		   (format t "WARNING! It is not IDENTITY MATRIX. But, this scale will be applied.~%"))
+	       ;; (if (not (equal-identity-matrix))
+	       ;; 	   (format t "WARNING! It is not IDENTITY MATRIX. But, this scale will be applied.~%"))
 	       (labels ((iter (row col cds acc acc1)
 			  (cond ((= row dims-0) (make-matrix (make-array (list dims-0 dims-1) :initial-contents acc)))
 				((= col dims-1) (iter (+ row 1) 0 cds (append acc (list acc1)) nil))
