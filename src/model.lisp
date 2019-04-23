@@ -2,9 +2,9 @@
 
 (deftype model-state () '(member PLAY STOP))
 
-;; for modeling interactively
-(defun draw (sprites)
-  (ask sprites 'draw))
+(defun run (model)
+  (ask model 'run))
+
 
 ;; model
 (defun make-model (&key
@@ -19,7 +19,7 @@
 	(%window nil)
 	(%context nil)
 	(%glsl-program (make-glsl-program))
-	(%sprites (make-sprites))
+	(%world nil)
 	(%state 'PLAY)
 	)
     
@@ -56,13 +56,15 @@
 
 	     (%initialize-objects ()
 	       (%%initialize-shaders)
-	       (ask %sprites 'init -1.0 -1.0 1.0 1.0)) ; TODO: 
+	       (setf %world (make-world %glsl-program))
+	       (ask %world 'initialize)
+	       )
 	     
 	     (%%%draw-model ()
 	       (gl:clear :color-buffer-bit :depth-buffer-bit)
 	       (ask %glsl-program 'use)
 
-	       (draw %sprites)
+	       (draw %glsl-program %world)
 
 	       (ask %glsl-program 'unuse)
 	       (sdl2:gl-swap-window %window))
@@ -86,8 +88,7 @@
 	       	  do (%%event-loop)))
 	     
 	     (%destroy-objects ()
-	       (ask %glsl-program 'destroy)
-	       (ask %sprites 'destroy))
+	       (ask %glsl-program 'destroy))
 	     
 	     (%quit-system ()
 	       (sdl2:gl-delete-context %context)
@@ -105,5 +106,4 @@
 		   (%destroy-objects)
 		   (%quit-system))))))))
 
-(defun run (model)
-  (ask model 'run))
+

@@ -140,5 +140,3 @@
 * Daily
 
 ** Implement loopkup matrix
-
-** Modify glsl-program class

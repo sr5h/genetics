@@ -1,5 +1,8 @@
 (in-package :genetics)
 
+(defun set-uniform-4fv (glsl-id uniform-name lst)
+  (ask glsl-id 'set-uniform-4fv uniform-name lst))
+
 (defun make-glsl-program ()
   (let ((%vertex-shader-id nil)
 	(%fragment-shader-id nil)
@@ -11,16 +14,7 @@
 		 (let ((contents (make-string (file-length file-stream))))
 		   (read-sequence contents file-stream)
 		   contents)))
-	     (%set-uniform-matrix-4fv (variable-name lst)
-	       (print lst)
-	       (let* ((loc (gl:get-uniform-location
-			    %program-id
-			    variable-name)))
-		 (%gl:uniform-matrix-4fv loc
-					 1
-					 :false (cffi:foreign-alloc
-						 :float
-						 :initial-contents lst))))
+	     
 	     )
 	     
       (lambda (message)
@@ -68,30 +62,24 @@
 		    (gl:delete-shader %vertex-shader-id)
 		    (gl:delete-shader %Fragment-Shader-id)))
 
+	  ((set-uniform-4fv) (lambda (self variable-name lst)
+			       (let* ((loc (gl:get-uniform-location
+					    %program-id
+					    variable-name)))
+				 (%gl:uniform-matrix-4fv
+				  loc
+				  1
+				  :false (cffi:foreign-alloc
+					  :float
+					  :initial-contents lst)))))
+	  
 	  ((use) (lambda (self)
-		   (gl:use-program %program-id)
-
-		   (%set-uniform-matrix-4fv
-		    "model"
-		    (to-list
-		     (rotate (make-matrix) (sdl2:get-ticks) 1.0 0.0 0.0)))
-		   
-		   (%set-uniform-matrix-4fv
-		    "view"
-		    (to-list
-		     (translate (make-matrix) 0.0 0.0 -5.0)))
-		   
-		   (%set-uniform-matrix-4fv
-		    "projection"
-		    (to-list
-		     (perspective (make-matrix)
-				  45.0
-				  (/ 800.0 600.0)
-				  0.1
-				  100.0)))))
+		   (gl:use-program %program-id)))
 	  
 	  ((unuse) (lambda (self)
 		     (gl:use-program 0)))
+
+	  
 
 	  ((destroy) (lambda (self)
 		       (if (/= %program-id 0)

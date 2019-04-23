@@ -21,6 +21,7 @@
    (:file "matrix")
    (:file "glsl-program")
    (:file "sprites")
+   (:file "world")
    (:file "model")
    ;; (:file "point")
    ;; (:file "triangle")
