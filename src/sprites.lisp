@@ -8,6 +8,7 @@
 	(%vbos nil)			; 0 or nil?
 	(%vaos nil)
 	(%ebos nil))
+
     (labels ((%init (x y width height)
 	       (setf %x x)
 	       (setf %y y)
@@ -38,7 +39,8 @@
 		      (indices #(0 1 2 ;; 2 3 0
 				 ))
 		      (arr (gl:alloc-gl-array :float (length verts)))
-		      (arr1 (gl:alloc-gl-array :unsigned-int (length indices))))
+		      (arr1 (gl:alloc-gl-array
+			     :unsigned-int (length indices))))
 		 
 		 (dotimes (i (length verts))
 		   (setf (gl:glaref arr i) (aref verts i)))
@@ -52,12 +54,17 @@
 	       	 (gl:buffer-data :array-buffer :static-draw arr)
 
 		 (gl:bind-buffer :element-array-buffer (car %ebos))
-		 (gl:buffer-data :element-array-buffer :static-draw arr1)					
+		 (gl:buffer-data :element-array-buffer
+				 :static-draw
+				 arr1)					
 
-		 (gl:vertex-attrib-pointer 0 2 :float :false (* (cffi:foreign-type-size :float) 5) 0)
+		 (gl:vertex-attrib-pointer
+		  0 2 :float :false (* (cffi:foreign-type-size :float) 5) 0) 
 		 (gl:enable-vertex-attrib-array 0)
 
-		 (gl:vertex-attrib-pointer 1 3 :float :false (* (cffi:foreign-type-size :float) 5) (* 2 (cffi:foreign-type-size :float)))
+		 (gl:vertex-attrib-pointer
+		  1 3 :float :false (* (cffi:foreign-type-size :float) 5)
+		  (* 2 (cffi:foreign-type-size :float)))
 		 (gl:enable-vertex-attrib-array 1)
 
 		 (gl:free-gl-array arr)

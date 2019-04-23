@@ -121,3 +121,24 @@
    3. delegation: explicitly use methods from internal objects
 
 ** Multiple inheritance
+
+* emacs
+
+  useful function when coding
+
+** form feed
+
+***  (C-q C-l)
+
+*** prev-page (C-x [)
+    
+*** next-page (C-x ])
+
+** rgrep
+   to show collecting keywords (TODO, ...) at one buffer
+
+* Daily
+
+** Implement loopkup matrix
+
+** Modify glsl-program class

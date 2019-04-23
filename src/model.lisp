@@ -5,7 +5,7 @@
 ;; for modeling interactively
 (defun draw (sprites)
   (ask sprites 'draw))
-
+
 ;; model
 (defun make-model (&key
 		     (x 0)
@@ -28,8 +28,9 @@
 	       ;; (sdl2:gl-set-attrs :context-major-version 3)
 	       ;; (sdl2:gl-set-attrs :context-minor-version 3)
 	       ;; (sdl2:gl-set-attrs :forward-compatible-flag 1)
-	       (sdl2:gl-set-attrs :context-profile-mask
-	       			  sdl2-ffi:+sdl-gl-context-profile-core+)	       
+	       (sdl2:gl-set-attrs
+		:context-profile-mask
+		sdl2-ffi:+sdl-gl-context-profile-core+)	
 
 	       (setf %window (sdl2:create-window
 			      :x %x
@@ -51,12 +52,11 @@
 	     
 	     (%%initialize-shaders ()
 	       (ask %glsl-program 'compile "sprites.vert" "sprites.frag")
-	       ;; (ask %glsl-program 'add-attribute "vertexPosition_modelspace")
 	       (ask %glsl-program 'link))
 
 	     (%initialize-objects ()
 	       (%%initialize-shaders)
-	       (ask %sprites 'init -1.0 -1.0 1.0 1.0)) ; TODO
+	       (ask %sprites 'init -1.0 -1.0 1.0 1.0)) ; TODO: 
 	     
 	     (%%%draw-model ()
 	       (gl:clear :color-buffer-bit :depth-buffer-bit)
