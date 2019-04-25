@@ -64,7 +64,7 @@
 	       (gl:clear :color-buffer-bit :depth-buffer-bit)
 	       (ask %glsl-program 'use)
 
-	       (draw %glsl-program %world)
+	       (draw %world)
 
 	       (ask %glsl-program 'unuse)
 	       (sdl2:gl-swap-window %window))
@@ -88,6 +88,7 @@
 	       	  do (%%event-loop)))
 	     
 	     (%destroy-objects ()
+	       (ask %world 'destroy)
 	       (ask %glsl-program 'destroy))
 	     
 	     (%quit-system ()

@@ -139,4 +139,9 @@
 
 * Daily
 
+** Implement sphere vertex
+
+** Implement vector
+
 ** Implement loopkup matrix
+

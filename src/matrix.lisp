@@ -4,6 +4,10 @@
 
 ;;; matrix aux functions
 
+;; TODO: naming
+(defun set-identity (matrix)
+  (ask matrix 'setf-identity))
+
 (defun translate (matrix x y z)
   (ask matrix 'translatef x y z))
 
@@ -16,6 +20,9 @@
 
 (defun to-list (matrix)
   (ask matrix 'to-list))
+
+(defun mat* (mat1 mat2)
+  (ask mat1 'mulf mat2))
 
 ;; array, element-type, row, col => array , nil or ERROR
 (defun %verify-array (array element-type row col)
@@ -356,12 +363,16 @@
 					:row row
 					:col col
 					:type type))))
+
+	  ((look-at) (lambda (self..)	;TODO:
+		       ))
 	  
 	  ;; => number
 	  ((get-dimension) (lambda (self axis)
 			     (declare (ignore self))
 	  		     (if (= axis 0) row col)))
 
+	  ;; => list
 	  ((to-list) (lambda (self)
 		       (labels ((iter (r c acc)
 				  (cond ((= r row) acc)

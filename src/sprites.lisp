@@ -31,12 +31,12 @@
 
 	       ;; make vertex data
 	       (let* ((verts
-		       #(0.0 0.5 1.0 0.0 0.0
-			 -0.5 -0.5 0.0 1.0 0.0
-			 0.5 -0.5 0.0 0.0 1.0
-			 ;; 0.0 -1.0 0.5 0.5 0.5
+		       #(0.0 0.5 1.0 1.0 0.0 0.0
+			 -0.5 -0.5 0.0 0.0 1.0 0.0
+			 0.5 -0.5 0.2 0.0 0.0 1.0
+			 0.0 -1.0 0.8 0.5 0.5 0.5
 			 ))
-		      (indices #(0 1 2 ;; 2 3 0
+		      (indices #(0 1 2 2 3 0
 				 ))
 		      (arr (gl:alloc-gl-array :float (length verts)))
 		      (arr1 (gl:alloc-gl-array
@@ -59,12 +59,12 @@
 				 arr1)					
 
 		 (gl:vertex-attrib-pointer
-		  0 2 :float :false (* (cffi:foreign-type-size :float) 5) 0) 
+		  0 3 :float :false (* (cffi:foreign-type-size :float) 6) 0) 
 		 (gl:enable-vertex-attrib-array 0)
 
 		 (gl:vertex-attrib-pointer
-		  1 3 :float :false (* (cffi:foreign-type-size :float) 5)
-		  (* 2 (cffi:foreign-type-size :float)))
+		  1 3 :float :false (* (cffi:foreign-type-size :float) 6)
+		  (* 3 (cffi:foreign-type-size :float)))
 		 (gl:enable-vertex-attrib-array 1)
 
 		 (gl:free-gl-array arr)
@@ -74,7 +74,8 @@
 	     
 	     (%draw ()
 	       (gl:bind-vertex-array (car %vaos))
-	       (%gl:draw-elements :triangles 3 :unsigned-int 0)
+	       ;; element type, indices length, indices type, offset
+	       (%gl:draw-elements :triangles 1998 :unsigned-int 0)
 	       (gl:bind-vertex-array 0))
 
 	     (%destroy ()
@@ -88,8 +89,8 @@
       (lambda (message)
 	(case message
 
-	  ((init) (lambda (self x y width height)
-		    (%init x y width height)))
+	  ((initialize) (lambda (self x y width height)
+			  (%init x y width height)))
 	  
 	  ((draw) (lambda (self)
 		    (%draw)))

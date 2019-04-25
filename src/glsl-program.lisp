@@ -3,6 +3,9 @@
 (defun set-uniform-4fv (glsl-id uniform-name lst)
   (ask glsl-id 'set-uniform-4fv uniform-name lst))
 
+(defun set-uniform-3f (glsl-id uniform-name v0 v1 v2)
+  (ask glsl-id 'set-uniform-3f uniform-name v0 v1 v2))
+
 (defun make-glsl-program ()
   (let ((%vertex-shader-id nil)
 	(%fragment-shader-id nil)
@@ -16,7 +19,7 @@
 		   contents)))
 	     
 	     )
-	     
+	     
       (lambda (message)
 	(case message
 	  ((compile) (lambda (self vertex-shader-path fragment-shader-path)
@@ -61,7 +64,7 @@
 
 		    (gl:delete-shader %vertex-shader-id)
 		    (gl:delete-shader %Fragment-Shader-id)))
-
+
 	  ((set-uniform-4fv) (lambda (self variable-name lst)
 			       (let* ((loc (gl:get-uniform-location
 					    %program-id
@@ -72,6 +75,14 @@
 				  :false (cffi:foreign-alloc
 					  :float
 					  :initial-contents lst)))))
+
+	  ((set-uniform-3f) (lambda (self variable-name v0 v1 v2)
+			       (let* ((loc (gl:get-uniform-location
+					    %program-id
+					    variable-name)))
+				 (%gl:uniform-3f 
+				  loc
+				  v0 v1 v2))))
 	  
 	  ((use) (lambda (self)
 		   (gl:use-program %program-id)))
