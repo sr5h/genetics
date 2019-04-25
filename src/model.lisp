@@ -20,8 +20,7 @@
 	(%context nil)
 	(%glsl-program (make-glsl-program))
 	(%world nil)
-	(%state 'PLAY)
-	)
+	(%state 'PLAY))
     
     (labels ((%initialize-system ()
 	       (sdl2:init :video)
@@ -45,10 +44,7 @@
 	       ;; (print (gl:get-string :extensions))
 
 	       (sdl2:gl-set-attrs :doublebuffer 1)
-	       (gl:clear-color 0.0 0.0 0.0 1.0)
-	       (gl:clear-depth 1.0)
-	       (gl:clear :color-buffer-bit
-			 :depth-buffer-bit))
+	       (gl:enable :depth-test))
 	     
 	     (%%initialize-shaders ()
 	       (ask %glsl-program 'compile "sprites.vert" "sprites.frag")
@@ -61,10 +57,12 @@
 	       )
 	     
 	     (%%%draw-model ()
+	       (gl:clear-color 0.0 0.0 0.0 1.0)
 	       (gl:clear :color-buffer-bit :depth-buffer-bit)
+	       
 	       (ask %glsl-program 'use)
 
-	       (draw %world)
+	       (draw %world %glsl-program)
 
 	       (ask %glsl-program 'unuse)
 	       (sdl2:gl-swap-window %window))
