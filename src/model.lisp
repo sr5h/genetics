@@ -1,5 +1,7 @@
 (in-package :genetics)
 
+;; (defparameter *tick* nil)
+
 (deftype model-state () '(member PLAY STOP))
 
 (defun run (model)
@@ -31,12 +33,10 @@
 		:context-profile-mask
 		sdl2-ffi:+sdl-gl-context-profile-core+)	
 
-	       (setf %window (sdl2:create-window
-			      :x %x
-			      :y %y
-			      :w %screen-width
-			      :h %screen-height
-			      :flags '(:opengl)))
+	       (setf %window (sdl2:create-window :x %x :y %y
+						 :w %screen-width
+						 :h %screen-height
+						 :flags '(:opengl)))
 
 	       (setf %context (sdl2:gl-create-context %window))
 
@@ -53,8 +53,7 @@
 	     (%initialize-objects ()
 	       (%%initialize-shaders)
 	       (setf %world (make-world %glsl-program))
-	       (ask %world 'initialize)
-	       )
+	       (ask %world 'initialize))
 	     
 	     (%%%draw-model ()
 	       (gl:clear-color 0.0 0.0 0.0 1.0)
@@ -73,13 +72,18 @@
 			(setf %state 'STOP)
 			t)
 		 (:idle ()
-			(let ((cur-tick (sdl2:get-ticks)))
+			(setf *tick* (sdl2:get-ticks))
+			;; (let ((cur-tick (sdl2:get-ticks)))
 			
 		 	  (%%%draw-model)
 
-			  (let ((diff (- (sdl2:get-ticks) cur-tick)))
-			    (if (> 16 diff)
-				(sdl2:delay (- 16 diff))))))))
+			  ;; (let ((diff (- (sdl2:get-ticks) cur-tick)))
+			  ;;   (if (> 10 diff)
+			  ;; 	(sdl2:delay (- 100 diff))))
+			  )
+		 )
+	       )
+
 	     
 	     (%modeling ()
 	       (loop until (eq %state 'STOP)
@@ -104,5 +108,3 @@
 
 		   (%destroy-objects)
 		   (%quit-system))))))))
-
-

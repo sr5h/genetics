@@ -78,15 +78,11 @@
 			      (let* ((loc (gl:get-uniform-location
 					   %program-id
 					   variable-name)))
-				(%gl:uniform-3f 
-				 loc
-				 v0 v1 v2))))
+				(%gl:uniform-3f loc v0 v1 v2))))
 	  
-	  ((use) (lambda (self)
-		   (gl:use-program %program-id)))
+	  ((use) (lambda (self) (gl:use-program %program-id)))
 	  
-	  ((unuse) (lambda (self)
-		     (gl:use-program 0)))
+	  ((unuse) (lambda (self) (gl:use-program 0)))
 
 	  ((destroy) (lambda (self)
 		       (if (/= %program-id 0)

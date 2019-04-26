@@ -26,17 +26,18 @@
 
 ;; array, element-type, row, col => array , nil or ERROR
 (defun %verify-array (array element-type row col)
-  (if array
+  (if (null array)
+      nil
       (if (and (typep array 'array)
 	       (eq element-type (array-element-type array))
 	       (equal (list row col) (array-dimensions array)))
 	  array
-	  (progn (format t "~a ~a ~a~%"
+	  (progn (format t
+			 "~a ~a ~a~%"
 			 (typep array 'array)
   	       		 (eq element-type (array-element-type array))
   	       		 (equal (list row col) (array-dimensions array)))
-		 (error "Arguments of make-matrix is insufficient or wrong.")))
-      nil))
+		 (error "Arguments of matrix is insufficient or wrong.")))))
 
 ;; matrix class
 (defun make-matrix (&key
@@ -67,22 +68,24 @@
 	       (make-array (list row col)
 			   :element-type type
 			   :initial-contents
-			   `((,(coerce (/ (* 2.0 near) (- right left)) type)
+			   `((,(coerce
+				(/ (* 2.0 near) (- right left)) type)
 			       0.0
-			       ,(coerce (/ (+ right left) (- right left)) type)
+			       ,(coerce
+				 (/ (+ right left) (- right left)) type)
 			       0.0)
 			     (0.0
-			      ,(coerce (/ (* 2.0 near) (- top bottom)) type)
-			      ,(coerce (/ (+ top bottom) (- top bottom)) type)
+			      ,(coerce
+				(/ (* 2.0 near) (- top bottom)) type)
+			      ,(coerce
+				(/ (+ top bottom) (- top bottom)) type)
 			      0.0)
 			     (0.0
 			      0.0
 			      ,(coerce
-				(/ (* -1.0 (+ far near)) (- far near))
-				type)
+				(/ (* -1.0 (+ far near)) (- far near)) type)
 			      ,(coerce
-				(/ (* -1.0 2.0 far near) (- far near))
-				type))
+				(/ (* -1.0 2.0 far near) (- far near)) type))
 			     (0.0 0.0 -1.0 0.0))))
 
 	     (%ortho (left right bottom top near far)
@@ -166,10 +169,10 @@
 	  	    (let ((mat-arr (ask mat 'get-array)))
 	     	      (loop for i from 0 below row collect
 	  		   (loop for j from 0 below col collect
-	  			(setf (aref %array i j) (coerce
-							 (+ (aref %array i j)
-							    (aref mat-arr i j))
-	  						 type))))
+	  			(setf (aref %array i j)
+				      (coerce (+ (aref %array i j)
+						 (aref mat-arr i j))
+	  				      type))))
 	  	      self)))
 	  
 	  ;; col dimension can be changed! (ex-dimensions: 2x3 3x2 => 2x2)
@@ -183,32 +186,34 @@
 	  	    (assert (%equal-dimension-last-first-p mat))
 		    
 	  	    (let ((mat-arr (ask mat 'get-array)))
-	  	      (labels ((iter (lrow lcol rrow rcol sum acc acc1)
-	  			 (cond ((= lrow row)
-					;; environment of col is
-					;; parent. danger code!
-					;; ;^HOWTO ? using member
-					;; variable %row %col?
-					(setf col (ask mat 'get-dimension 1)) ;^
-					(setf %array
-					      (make-array
-					       (list row
-						     (ask mat 'get-dimension 1))
-					       :element-type type
-					       :initial-contents acc))
-					self)
-	  			       ((= lcol col)
-					(iter lrow 0 0 (+ 1 rcol)
-					      0 acc (append acc1 (list sum))))
-	  			       ((= rcol (ask mat 'get-dimension 1))
-					(iter (+ 1 lrow) 0 0 0
-					      0 (append acc (list acc1)) nil))
-	  			       (t (iter lrow (+ 1 lcol) (+ 1 rrow) rcol
-						(+ sum (* (aref %array lrow lcol)
-							  (aref mat-arr
-								rrow
-								rcol)))
-						acc acc1)))))
+	  	      (labels
+			  ((iter (lrow lcol rrow rcol sum acc acc1)
+	  		     (cond ((= lrow row)
+				    ;; environment of col is
+				    ;; parent. danger code!
+				    ;; ;^HOWTO ? using member
+				    ;; variable %row %col?
+				    (setf col
+					  (ask mat 'get-dimension 1)) ;^
+				    (setf %array
+					  (make-array
+					   (list row
+						 (ask mat 'get-dimension 1))
+					   :element-type type
+					   :initial-contents acc))
+				    self)
+	  			   ((= lcol col)
+				    (iter lrow 0 0 (+ 1 rcol)
+					  0 acc (append acc1 (list sum))))
+	  			   ((= rcol (ask mat 'get-dimension 1))
+				    (iter (+ 1 lrow) 0 0 0
+					  0 (append acc (list acc1)) nil))
+	  			   (t (iter lrow (+ 1 lcol) (+ 1 rrow) rcol
+					    (+ sum (* (aref %array lrow lcol)
+						      (aref mat-arr
+							    rrow
+							    rcol)))
+					    acc acc1)))))
 	  		(iter 0 0 0 0 0 nil nil)))))
 
 	  ;; coords => matrix
@@ -233,12 +238,16 @@
 						       (+ (aref arr r c)
 							  (car cds))
 						       type))
-	     					(iter (+ r 1) c (cdr cds))))))
+	     					(iter (+ r 1)
+						      c
+						      (cdr cds))))))
 			      ;; apply transform matrix to self
 			      (if (null %array)
 				  (ask self 'setf-identity))
 	     		      (ask self 'addf (make-matrix
-					       :array (iter 0 (- col 1) coords)
+					       :array (iter 0
+							    (- col 1)
+							    coords)
 					       :row row
 					       :col col
 					       :type type))))))
@@ -255,7 +264,8 @@
 		      ;; make transform matrix array
 	  	      (let ((arr (make-array (list row col)
 					     :element-type type
-					     :initial-element (coerce 0 type))))
+					     :initial-element
+					     (coerce 0 type))))
 			(setf (aref arr (- row 1) (- col 1)) (coerce 1.0 type))
 			(labels ((iter (r c cds)
 	     			   (cond ((null cds) arr)
@@ -264,12 +274,15 @@
 						(coerce
 						 (+ (aref arr r c) (car cds))
 						 type))
-	  				  (iter (+ r 1) (+ c 1) (cdr cds))))))
+	  				  (iter (+ r 1)
+						(+ c 1)
+						(cdr cds))))))
 			  ;; apply transform matrix to self
-	     		  (ask self 'mulf (make-matrix :array (iter 0 0 coords)
-						       :row row
-						       :col col
-						       :type type))))))
+	     		  (ask self 'mulf (make-matrix
+					   :array (iter 0 0 coords)
+					   :row row
+					   :col col
+					   :type type))))))
 	  
 
 	  ;; 4x4
@@ -284,53 +297,54 @@
 	  ;; 0  0  1 
 	  ;; 
 	  ;; radian, coords => matrix
-	  ((rotatef) (lambda (self angle &rest coords)
-	  	       ;; 3x3, 4x4 available
-	  	       (let* ((rad (coerce (* pi (/ angle 180)) type))
-	  		      (co (coerce (cos rad) type))
-	     		      (si (coerce (sin rad) type))
-			      (arr nil))
-			 ;; make transform matrix array
-			 (case row
-			   ((3) (setf arr (make-array (list row col)
-						      :element-type type
-						      :initial-contents
-						      `((,co ,(* -1 si) 0.0)
-							(,si ,co 0.0)
-							(0.0 0.0 1.0)))))
-			   ((4)
-			    (cond
-			      ((eq 1.0 (car coords))
-			       (setf arr
-				     (make-array (list row col)
-						 :element-type type
-						 :initial-contents
-						 `((1.0 0.0 0.0 0.0)
-						   (0.0 ,co ,(* -1.0 si) 0.0)
-						   (0.0 ,si ,co 0.0)
-						   (0.0 0.0 0.0 1.0)))))
-			      ((eq 1.0 (cadr coords))
-			       (setf arr (make-array (list row col)
-						     :element-type type
-						     :initial-contents
-						     `((,co 0.0 ,si 0.0)
-						       (0.0 1.0 0.0 0.0)
-						       (,(* -1.0 si) 0.0 ,co 0.0)
-						       (0.0 0.0 0.0 1.0)))))
-			      ((eq 1.0 (caddr coords))
-			       (setf arr (make-array (list row col)
-						     :element-type type
-						     :initial-contents
-						     `((,co ,(* -1.0 si) 0.0 0.0)
-						       (,si ,co 0.0 0.0)
-						       (0.0 0.0 1.0 0.0)
-						       (0.0 0.0 0.0 1.0)))))
-				      (t (error "rotating is failed."))))
-			   (t (error "It is not 3x3 or 4x4 matrix.")))
-			 (ask self 'mulf (make-matrix :array arr
-						      :row row
-						      :col col
-						      :type type)))))
+	  ((rotatef)
+	   (lambda (self angle &rest coords)
+	     ;; 3x3, 4x4 available
+	     (let* ((rad (coerce (* pi (/ angle 180)) type))
+	  	    (co (coerce (cos rad) type))
+	     	    (si (coerce (sin rad) type))
+		    (arr nil))
+	       ;; make transform matrix array
+	       (case row
+		 ((3) (setf arr (make-array (list row col)
+					    :element-type type
+					    :initial-contents
+					    `((,co ,(* -1 si) 0.0)
+					      (,si ,co 0.0)
+					      (0.0 0.0 1.0)))))
+		 ((4)
+		  (cond
+		    ((eq 1.0 (car coords))
+		     (setf arr
+			   (make-array (list row col)
+				       :element-type type
+				       :initial-contents
+				       `((1.0 0.0 0.0 0.0)
+					 (0.0 ,co ,(* -1.0 si) 0.0)
+					 (0.0 ,si ,co 0.0)
+					 (0.0 0.0 0.0 1.0)))))
+		    ((eq 1.0 (cadr coords))
+		     (setf arr (make-array (list row col)
+					   :element-type type
+					   :initial-contents
+					   `((,co 0.0 ,si 0.0)
+					     (0.0 1.0 0.0 0.0)
+					     (,(* -1.0 si) 0.0 ,co 0.0)
+					     (0.0 0.0 0.0 1.0)))))
+		    ((eq 1.0 (caddr coords))
+		     (setf arr (make-array (list row col)
+					   :element-type type
+					   :initial-contents
+					   `((,co ,(* -1.0 si) 0.0 0.0)
+					     (,si ,co 0.0 0.0)
+					     (0.0 0.0 1.0 0.0)
+					     (0.0 0.0 0.0 1.0)))))
+		    (t (error "rotating is failed."))))
+		 (t (error "It is not 3x3 or 4x4 matrix.")))
+	       (ask self 'mulf (make-matrix :array arr
+					    :row row
+					    :col col
+					    :type type)))))
 	  
 	  ((perspectivef) (lambda (self fov ratio front back)
 			    (let* ((rad (* pi (coerce (/ fov 180) type)))
@@ -363,7 +377,7 @@
 					:row row
 					:col col
 					:type type))))
-
+	  
 	  ((look-at) (lambda (self..)	;TODO:
 		       ))
 	  
