@@ -20,6 +20,7 @@
    (:file "aux")
    (:file "vector")
    (:file "matrix")
+   (:file "draw-able-object")
    (:file "sprites")
    (:file "sphere")
    (:file "glsl-program")

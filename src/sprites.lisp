@@ -28,7 +28,7 @@
 	       ;; EBO
 	       (if (eq %ebos nil)
 		   (setf %ebos (gl:gen-buffers 1)))
-
+	       (format t  "vaos ~a vbos ~a element ~a~%" %vaos %vbos %ebos)
 	       ;; make vertex data
 	       (let* ((verts
 		       #(0.0 0.5 1.0 1.0 0.0 0.0

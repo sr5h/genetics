@@ -28,14 +28,6 @@
 	 ,(coerce (* r (sin (rad a0))) type)   ; g
 	 ,(coerce (* r (cos (rad a0)) (cos (rad a1))) type))) ; b
 
-;; (defmacro %sphere-coords (r a0 a1 type)
-;;   `(list ,(coerce (* r (sin (rad a0)) (cos (rad a1))) type) ; x
-;; 	 ,(coerce (* r (sin (rad a0)) (sin (rad a1))) type) ; y
-;; 	 ,(coerce (* r (cos (rad a0))) type)		    ; z
-	 
-;; 	 ,(coerce (* r (sin (rad a0)) (cos (rad a1))) type) ; r
-;; 	 ,(coerce (* r (sin (rad a0)) (sin (rad a1))) type) ; g
-;; 	 ,(coerce (* r (cos (rad a0))) type)))		    ; b
 
 (defmacro generate-vertex (radius angle0 angle1 step0 step1
 			   gen-fn
@@ -83,10 +75,11 @@
 	   (if (eq %vbos nil) (setf %vbos (gl:gen-buffers 1)))
 	   ;; EBO
 	   (if (eq %ebos nil) (setf %ebos (gl:gen-buffers 1)))
-
+	   (format t  "vaos ~a vbos ~a element ~a~%" %vaos %vbos %ebos)
+	   
 	   (setf %sphere (generate-vertex 1.0
 					  -90.0 0.0
-					  15.0 15.0
+					  10.0 20.0
 					  %sphere-coords))
 
 	   (let* ((verts-length (length %sphere))

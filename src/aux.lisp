@@ -7,11 +7,12 @@
 	(t
 	 (error "Object returned that there is not a function related to MESSAGE!!"))))
 
-;; TODO
+;; TODO:
 (defun no-method ()
   (let ((tag (list 'no-method)))
     tag))
 
+;; TODO:
 (defun get-method (message object)
   (funcall object message))
 
@@ -36,3 +37,13 @@
     (if (is-method-p method) 		;??
 	(apply method object args)
 	(error "No method for message"))))
+
+
+(defun expand-type (object-type &rest super-classes)
+  (labels ((iterate-super-classes (classes acc)
+		(cond ((null classes) acc)
+		      (t       
+		       (iterate-super-classes (cdr classes)
+			     (append acc (ask (car classes) 'type)))))))
+    (append (list object-type) (iterate-super-classes super-classes nil))))
+                                                                                
