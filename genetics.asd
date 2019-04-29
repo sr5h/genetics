@@ -18,6 +18,7 @@
   :components
   ((:file "package")
    (:file "aux")
+   (:file "root")
    (:file "vector")
    (:file "matrix")
    (:file "draw-able-object")

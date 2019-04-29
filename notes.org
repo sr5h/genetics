@@ -137,9 +137,14 @@
 ** rgrep
    to show collecting keywords (TODO, ...) at one buffer
 
+** counsel-projectile
+
+*** counsel-projectile-git-grep (C-c p s i)
+
 * Daily
 
 ** Implement vector
 
 ** Implement loopk-at matrix
 
+** upgrade oop
