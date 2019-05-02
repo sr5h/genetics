@@ -148,3 +148,5 @@
 ** Implement loopk-at matrix
 
 ** upgrade oop
+
+** how to make virtual function?

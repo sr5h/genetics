@@ -47,7 +47,7 @@
 	       (gl:enable :depth-test))
 	     
 	     (%%initialize-shaders ()
-	       (ask %glsl-program 'compile "sprites.vert" "sprites.frag")
+	       (ask %glsl-program 'compile "sphere.vert" "sphere.frag")
 	       (ask %glsl-program 'link))
 
 	     (%initialize-objects ()
@@ -61,7 +61,7 @@
 	       
 	       (ask %glsl-program 'use)
 
-	       (draw %world %glsl-program)
+	       (draw %world)
 
 	       (ask %glsl-program 'unuse)
 	       (sdl2:gl-swap-window %window))

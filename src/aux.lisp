@@ -10,6 +10,7 @@
   (error "ERROR! It's not method."))
 
 (defun get-method (message &rest objects)
+
   (labels ((iterate-objects (objs)
 	     (cond ((null objs) (no-method))
 		   (t (let ((method (funcall (car objs) message)))
@@ -40,12 +41,12 @@
 	(apply method object args)
 	(no-method))))
 
-(defun expand-type (object-type &rest super-classes)
+(defun extend-type (object-type &rest super-classes) 
   (labels ((iterate-super-classes (classes acc)
-		(cond ((null classes) acc)
-		      (t       
-		       (iterate-super-classes (cdr classes)
-			     (append acc (ask (car classes) 'type)))))))
+	     (cond ((null classes) acc)
+		   (t       
+		    (iterate-super-classes (cdr classes)
+		      (append acc (ask (car classes) 'type)))))))
     (append (list object-type) (iterate-super-classes super-classes nil))))
                                                                                 
 

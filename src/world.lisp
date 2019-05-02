@@ -1,13 +1,11 @@
-;;;; world.lisp
-
 (in-package :genetics)
 
-
 (defun make-world (glsl-id)
   (let (;; objects
 	(%coords nil)
 	(%sphere nil)
-	(%sprites nil))
+	(%cube nil)
+	(%tet nil))
     
     (lambda (message)
       (case message
@@ -18,9 +16,13 @@
 	   ;; sphere
 	   (setf %sphere (make-sphere))
 	   (ask %sphere 'initialize)
-	   ;; sprites
-	   (setf %sprites (make-sprites))
-	   (ask %sprites 'initialize 1 1 1 1)
+	   ;; cube
+	   (setf %cube (make-cube))
+	   (ask %cube 'initialize)
+	   ;; tetrahedron
+	   (setf %tet (make-tetrahedron))
+	   (ask %tet 'initialize)
+
 	   ;; objects coordinates
 	   (setf %coords
 		 `((,(random 5.0) ,(random 5.0) ,(random 5.0))
@@ -111,45 +113,63 @@
 	     (iter %coords objects))))
 	
 	((get-sphere) (lambda (self) (declare (ignore self)) %sphere))
-	
-	((get-sprites) (lambda (self) (declare (ignore self)) %sprites))
+	((get-cube) (lambda (self) (declare (ignore self)) %cube))
+	((get-tet) (lambda (self) (declare (ignore self)) %tet))
 	
 	((get-coords) (lambda (self) (declare (ignore self)) %coords))
 	
 	((destroy) (lambda (self)
 		     (declare (ignore self))
 		     (ask %sphere 'destroy)
-		     (ask %sprites 'destroy)))))))
+		     (ask %cube 'destroy)
+		     (ask %tet 'destroy)
+		     (destroy)
+		     ))))))
 
 
 ;; for modeling interactively
-(defun draw (world glsl-id)
-  (let ((sphere (ask world 'get-sphere))
-	(sprites (ask world 'get-sprites))
-	(objects nil)
-	(coords (length (ask world 'get-coords))))
+(let ((o nil))
+  
+  (defun draw (world)
+    (let ((sphere (ask world 'get-sphere))
+	  (cube (ask world 'get-cube))
+	  (tet (ask world 'get-tet))
+
+	  (coords (length (ask world 'get-coords))))
 
       
 
-    ;; TODO: make uniform matrix interactively
-    ;; (set-uniform-4fv
-    ;; 		     glsl-id
-    ;; 		     "view"
-    ;; 		     (to-list
-    ;; 		      (translate (make-matrix) 0.0 0.0 1.0)))
+      ;; TODO: make uniform matrix interactively
+      ;; (set-uniform-4fv
+      ;; 		     glsl-id
+      ;; 		     "view"
+      ;; 		     (to-list
+      ;; 		      (translate (make-matrix) 0.0 0.0 1.0)))
 
-    (labels ((iter (c acc)
-    	       (cond ((= c coords) acc)
-    		     (t (iter (+ c 1) (append acc (list sphere)))))))
-      (setf objects (iter 0 nil))
+      (if (null o)
+	  (labels ((iter (c acc n)
+    		     (cond ((= c coords) acc)
+    			   (t (iter (+ c 1) (append acc (list (case n
+								((0) sphere)
+								((1) cube)
+								(t tet)
+								)))
+				    (random 3))))))
+	    (setf o (iter 0 nil (random 3))))))
+      
 
-      (ask world 'draw objects))
-    
+	(ask world 'draw o)
+	)
+      
 
-    ;; (ask world 'draw (list sphere sphere))
-    ;; (let ((cur-tick (sdl2:get-ticks)))
-    ;;   (let ((diff (- cur-tick *tick*))
-    ;; 	    (term 0))
-    ;; 	(if (> term diff)
-    ;; 	    (sdl2:delay (- term diff)))))
-    ))
+      ;; (ask world 'draw (list sphere sphere))
+      ;; (let ((cur-tick (sdl2:get-ticks)))
+      ;;   (let ((diff (- cur-tick *tick*))
+      ;; 	    (term 0))
+      ;; 	(if (> term diff)
+      ;; 	    (sdl2:delay (- term diff)))))
+
+  (defun destroy ()
+    (loop :for i :in o :do
+	     (ask i 'destroy))
+    (setf o nil)))
