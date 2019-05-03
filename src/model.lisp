@@ -55,13 +55,13 @@
 	       (setf %world (make-world %glsl-program))
 	       (ask %world 'initialize))
 	     
-	     (%%%draw-model ()
+	     (%%%draw-model (key)
 	       (gl:clear-color 0.0 0.0 0.0 1.0)
 	       (gl:clear :color-buffer-bit :depth-buffer-bit)
 	       
 	       (ask %glsl-program 'use)
 
-	       (draw %world)
+	       (draw %world key)
 
 	       (ask %glsl-program 'unuse)
 	       (sdl2:gl-swap-window %window))
@@ -71,16 +71,26 @@
 		 (:quit ()
 			(setf %state 'STOP)
 			t)
+		 (:keyup
+		  (:keysym keysym)
+		  (print (sdl2:scancode-value keysym))
+		  (%%%draw-model (sdl2:scancode-value keysym))
+		  ;; (when (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-w)
+		  ;;   ;; experimental code
+
+		    ;; )
+		  (when (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
+		    (sdl2:push-event :quit)))
 		 (:idle ()
 			(setf *tick* (sdl2:get-ticks))
 			;; (let ((cur-tick (sdl2:get-ticks)))
 			
-		 	  (%%%draw-model)
-
+		 	(%%%draw-model nil)
+			
 			  ;; (let ((diff (- (sdl2:get-ticks) cur-tick)))
 			  ;;   (if (> 10 diff)
 			  ;; 	(sdl2:delay (- 100 diff))))
-			  )
+			)
 		 )
 	       )
 

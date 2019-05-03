@@ -16,7 +16,7 @@
 	   ;; sphere
 	   (setf %sphere (make-sphere))
 	   (ask %sphere 'initialize)
-	   ;; cube
+	   ;; ;; cube
 	   (setf %cube (make-cube))
 	   (ask %cube 'initialize)
 	   ;; tetrahedron
@@ -57,7 +57,7 @@
 	
 
 	((draw)
-	 (lambda (self objects)
+	 (lambda (self view objects)
 	   (declare (ignore self))
 	   (labels
 	       ((iter (c o)
@@ -65,36 +65,27 @@
 		    ((null o) t)
 		    ((null c)
 		     (error "coords not sufficient"))
-		    (t (let ((l (to-list (translate (make-matrix)
+		    (t (let ((l (mat-to-list (translate (make-matrix)
 						    (caar c)
 						    (cadar c)
 						    (caddar c))))
-			     (tick (sdl2:get-ticks)))
+			     ;; (tick (sdl2:get-ticks))
+			     )
 			 
 			 (set-uniform-4fv glsl-id "model" l)
 			 (set-uniform-4fv glsl-id
 					  "view"
-					  (to-list (translate
-						    (make-matrix)
-						    (* 3.0
-(cos (* pi (/ (rem (/ (sdl2:get-ticks) 50) 360.0) 180))))
-						    
-						    (* 3.0
-(sin (* pi (/ (rem (/ (sdl2:get-ticks) 50) 360.0) 180))))
-						    -20.0
-
-
-						    )))
+					  (mat-to-list view))
 			 (set-uniform-4fv glsl-id
 					  "projection"
-					  (to-list
+					  (mat-to-list
 					   (perspective
 					    (make-matrix)
 					    45.0
 					    (/ 800.0 600.0)
 					    0.1
 					    100.0)))
-			 
+
 			 ;; (set-uniform-3f
 			 ;;  glsl-id
 			 ;;  "ranColor"
@@ -128,38 +119,58 @@
 
 
 ;; for modeling interactively
-(let ((o nil))
+(let ((o nil)
+      (camera-speed 0. 5)
+      (camera-pos (make-vector 0.0 0.0 3.0))
+      (target-pos (make-vector 0.0 0.0 -1.0))
+      (up-vector (make-vector 0.0 1.0 0.0)))
   
-  (defun draw (world)
+  (defun draw (world key)
     (let ((sphere (ask world 'get-sphere))
 	  (cube (ask world 'get-cube))
 	  (tet (ask world 'get-tet))
 
 	  (coords (length (ask world 'get-coords))))
 
-      
+	(case key			;TODO:
+	  ((26)
+	   (setf camera-pos (vec+ camera-pos
+				  (vec* target-pos camera-speed))))
+	  ((22)
+	   (setf camera-pos (vec- camera-pos
+				  (vec* target-pos camera-speed))))
+	  ((4)
+	   (setf camera-pos (vec-
+			     camera-pos
+			     (vec*
+			      (normalize (cross target-pos up-vector))
+			      camera-speed))))
+	  ((7)
+	   (setf camera-pos (vec+
+			     camera-pos
+			     (vec*
+			      (normalize (cross target-pos up-vector))
+			      camera-speed)))))
 
-      ;; TODO: make uniform matrix interactively
-      ;; (set-uniform-4fv
-      ;; 		     glsl-id
-      ;; 		     "view"
-      ;; 		     (to-list
-      ;; 		      (translate (make-matrix) 0.0 0.0 1.0)))
+	(if (null o)
+	    (labels ((iter (c acc n)
+    		       (cond ((= c coords) acc)
+    			     (t (iter (+ c 1)
+				      (append acc
+					      (list
+					       (case n
+						 ((0) sphere)
+						 ((1) cube)
+						 (t tet))))
+					(random 3))))))
+		(setf o (iter 0 nil (random 3)))))
 
-      (if (null o)
-	  (labels ((iter (c acc n)
-    		     (cond ((= c coords) acc)
-    			   (t (iter (+ c 1) (append acc (list (case n
-								((0) sphere)
-								((1) cube)
-								(t tet)
-								)))
-				    (random 3))))))
-	    (setf o (iter 0 nil (random 3))))))
-      
-
-	(ask world 'draw o)
-	)
+	(let ((view (look-at (make-matrix)
+			     camera-pos
+			     (vec+ camera-pos target-pos)
+			     up-vector)))
+	  
+	  (ask world 'draw view o))))
       
 
       ;; (ask world 'draw (list sphere sphere))

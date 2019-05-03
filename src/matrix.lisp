@@ -18,11 +18,14 @@
 (defun perspective (matrix fov ratio front back)
   (ask matrix 'perspectivef fov ratio front back))
 
-(defun to-list (matrix)
+(defun mat-to-list (matrix)
   (ask matrix 'to-list))
 
 (defun mat* (mat1 mat2)
   (ask mat1 'mulf mat2))
+
+(defun look-at (matrix camera-pos target-pos up-vector)
+  (ask matrix 'look-at camera-pos target-pos up-vector))
 
 ;; array, element-type, row, col => array , nil or ERROR
 (defun %verify-array (array element-type row col)
@@ -45,7 +48,9 @@
 		      (row 4)
 		      (col 4)
 		      (type 'single-float))
-  (let ((%array (%verify-array array type row col)))
+  (let ((%super-class (make-root))
+	
+	(%array (%verify-array array type row col)))
     ;; => setf %array
     (labels ((%initializef ()
 	       ;; (format t "WARNING! Initialized matrix of ~a~%" type)
@@ -113,26 +118,7 @@
 			     (0.0
 			      0.0
 			      0.0
-			      1.0))))
-	     
-	     ;; ;; => symbol
-	     ;; (type () 'matrix)
-
-	     ;; ;; => boolean
-	     ;; (equal-identity-matrix ()
-	     ;;   (labels ((iter (row col)
-	     ;; 		  (cond ((= row dims-0) t)
-	     ;; 			((= col dims-1) (iter (+ row 1) 0))
-	     ;; 			((= row col) (if (/= 1.0s0 (aref array row col))
-	     ;; 					 nil
-	     ;; 					 (iter row (+ 1 col))))
-	     ;; 			(t (if (/= 0.0s0 (aref array row col))
-	     ;; 			       nil
-	     ;; 			       (iter row (+ 1 col)))))))
-	     ;; 	 (iter 0 0)))
-
-	     
-	     )
+			      1.0)))))
 
       (lambda (message)
 	(case message
@@ -377,9 +363,31 @@
 					:row row
 					:col col
 					:type type))))
-	  
-	  ((look-at) (lambda (self..)	;TODO:
-		       ))
+
+	  ((look-at) (lambda (self vec-camera-pos vec-target-pos vec-up)
+		       (if (not (and (ask vec-camera-pos 'is-a 'vector)
+				     (ask vec-target-pos 'is-a 'vector)
+				     (ask vec-up 'is-a 'vector)))
+			   (error "use (make-vector) for arguments"))
+		       ;; (if (null %array)
+		       ;; 	   (ask self 'setf-identity))
+		       (let* ((z-vector (normalize (vec- vec-camera-pos vec-target-pos)))
+			      (x-vector (normalize (cross vec-up z-vector)))
+			      (y-vector (normalize vec-up))
+			      (arr (make-array '(4 4)
+					       :element-type 'single-float
+					       :initial-contents
+					       (list
+						(append (ask x-vector 'to-list) (list 0.0))
+						(append (ask y-vector 'to-list) (list 0.0))
+						(append (ask z-vector 'to-list) (list 0.0))
+						(list 0.0 0.0 0.0 1.0))))
+			      (m1 (make-matrix :array arr))
+			      (m2 (ask (make-matrix) 'translatef ; is right? self? ;^
+				       (* -1.0 (ask vec-camera-pos 'get 1))
+				       (* -1.0 (ask vec-camera-pos 'get 2))
+				       (* -1.0 (ask vec-camera-pos 'get 3)))))
+			 (ask self 'mulf (mat* m1 m2)))))
 	  
 	  ;; => number
 	  ((get-dimension) (lambda (self axis)
@@ -388,6 +396,7 @@
 
 	  ;; => list
 	  ((to-list) (lambda (self)
+		       (declare (ignore self))
 		       (labels ((iter (r c acc)
 				  (cond ((= r row) acc)
 					((= c col) (iter (+ r 1)
@@ -402,7 +411,17 @@
 								c))))))))
 			 (iter 0 0 nil))))
 
+	  ((type) (lambda (self)
+		    (declare (ignore self))
+		    (extend-type 'matrix %super-class)))
+	
+	  ;; TODO:
+	  ((is-a) (lambda (self type)
+		    (member type (ask self 'type))))
+	  
 	  ;; => array
-	  ((get-array) (lambda (self) (declare (ignore self)) %array)))))))
+	  ((get-array) (lambda (self) (declare (ignore self)) %array))
+
+	  (t (get-method message %super-class)))))))
 
 

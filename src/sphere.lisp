@@ -59,6 +59,7 @@
 			(delegate self %super-class 'initialize-obj)))
 	
 	((type) (lambda (self)
+		  (declare (ignore self))
 		  (extend-type 'sphere %super-class)))
 	
 	;; TODO:
@@ -82,6 +83,7 @@
 		  (delegate self %super-class 'draw)))
 
 	((destroy) (lambda (self)
+		     (declare (ignore self))
 		     ;; destroy
 
 		     (ask %super-class 'destroy)))

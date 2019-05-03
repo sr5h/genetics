@@ -56,3 +56,4 @@
                      (ask %super-class 'destroy)))
 
 	(t (get-method message %super-class))))))
+
