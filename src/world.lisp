@@ -120,8 +120,8 @@
 
 ;; for modeling interactively
 (let ((o nil)
-      (camera-speed 0. 5)
-      (camera-pos (make-vector 0.0 0.0 3.0))
+      (camera-speed 0.5)
+      (camera-pos (make-vector 0.0 0.0 10.0))
       (target-pos (make-vector 0.0 0.0 -1.0))
       (up-vector (make-vector 0.0 1.0 0.0)))
   
