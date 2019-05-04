@@ -27,6 +27,7 @@
    (:file "sphere")
    (:file "tetrahedron")
    (:file "glsl-program")
+   (:file "manage-input")
    (:file "world")
    (:file "model")
    (:file "main")   

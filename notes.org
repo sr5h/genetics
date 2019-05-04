@@ -1,19 +1,12 @@
 #+STARTUP: hidestars
 #+STARTUP: showeverything
-#+TODO: TODO(t) WAIT(w@/!) | SOLVED(s@) CANCELED(c@)
+#+TODO: TODO(t) WAIT(w@/!) | SOLVED(s@) CANCELED(c@) | DONE(d@)
 
 * genetics
 
 ** implement using cl-opengl
 
 ** genetic algorithm
-
-** TODO Be copied argument of function object of function?
-
-*** (defun main-loop (window render-fn) ...)
-
-*** (defmacro main-loop (window render-fn) ...
-
 
 * sdl2
 
@@ -57,7 +50,7 @@
 ****** 1. just modify codes for main thread problem in SBCL.
 
 ******* codes
-	#+BEGIN_SRC emacs-lisp
+	#+BEGIN_SRC common-lisp
 	(defun main ()
           (bt:interrupt-thread
 	    (sb-thread:main-thread)
@@ -65,18 +58,18 @@
 	      (sdl2:make-this-thread-main ;; why need? if not, not work.
 		(lambda ()
 	          (sdl-main))))))
-	#+END_SRC emacs-lisp
+	#+END_SRC common-lisp
 
 ****** 2. run main program to render using cl-sdl2 in sbcl on either terminal or emacs eshell
 
 ******* codes     
-	#+BEGIN_SRC emacs-lisp
+	#+BEGIN_SRC common-lisp
 	(ql:quickload :swank)
 	(ql:quickload :genetics)
 	(in-package :genetics)
 	(bt:make-thread (lambda () (swank:create-server :port 4005 :dont-close t)))
 	(sdl2:make-this-thread-main (lambda () (main)))
-	#+END_SRC emacs-lisp
+	#+END_SRC common-lisp
 
 ****** 3. connect to created server(port:4005) using SLIME-CONNECT in emacs
 
@@ -88,9 +81,9 @@
       http://www.jonathanfischer.net/quick-notes-cepl-macos/
 
 ****** codes in ~/.swank.lisp
-       #+BEGIN_SRC emacs-lisp
+       #+BEGIN_SRC common-lisp
        #+sbcl (setf swank:*communication-style* nil)
-       #+END_SRC emacs-lisp
+       #+END_SRC common-lisp
 
 ****** (sdl2:make-this-thread-main #'main) in REPL
 
@@ -143,10 +136,20 @@
 
 * Daily
 
-** Implement vector
-
-** Implement loopk-at matrix
+** Implement camera class
 
 ** upgrade oop
 
 ** how to make virtual function?
+
+** DONE Implement vector
+
+   - State "DONE"       from              [2019-05-04 Sat 16:27]
+
+** DONE Implement loopk-at matrix
+
+   - State "DONE"       from              [2019-05-04 Sat 16:27]
+
+
+
+

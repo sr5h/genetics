@@ -20,6 +20,7 @@
 	(%screen-height height)
 	(%window nil)
 	(%context nil)
+	(%manage-input (make-manage-input))
 	(%glsl-program (make-glsl-program))
 	(%world nil)
 	(%state 'PLAY))
@@ -55,49 +56,16 @@
 	       (setf %world (make-world %glsl-program))
 	       (ask %world 'initialize))
 	     
-	     (%%%draw-model (key)
+	     (%draw-model (view)
 	       (gl:clear-color 0.0 0.0 0.0 1.0)
 	       (gl:clear :color-buffer-bit :depth-buffer-bit)
 	       
 	       (ask %glsl-program 'use)
 
-	       (draw %world key)
+	       (draw %world view)
 
 	       (ask %glsl-program 'unuse)
 	       (sdl2:gl-swap-window %window))
-	     
-	     (%%event-loop ()
-	       (sdl2:with-event-loop (:method :poll)
-		 (:quit ()
-			(setf %state 'STOP)
-			t)
-		 (:keyup
-		  (:keysym keysym)
-		  (print (sdl2:scancode-value keysym))
-		  (%%%draw-model (sdl2:scancode-value keysym))
-		  ;; (when (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-w)
-		  ;;   ;; experimental code
-
-		    ;; )
-		  (when (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
-		    (sdl2:push-event :quit)))
-		 (:idle ()
-			(setf *tick* (sdl2:get-ticks))
-			;; (let ((cur-tick (sdl2:get-ticks)))
-			
-		 	(%%%draw-model nil)
-			
-			  ;; (let ((diff (- (sdl2:get-ticks) cur-tick)))
-			  ;;   (if (> 10 diff)
-			  ;; 	(sdl2:delay (- 100 diff))))
-			)
-		 )
-	       )
-
-	     
-	     (%modeling ()
-	       (loop until (eq %state 'STOP)
-	       	  do (%%event-loop)))
 	     
 	     (%destroy-objects ()
 	       (ask %world 'destroy)
@@ -111,10 +79,37 @@
       (lambda (message)
 	(case message
 	  ((run) (lambda (self)
+		   (declare (ignore self))
 		   (%initialize-system)
 		   (%initialize-objects)
+		   
+
+		   (loop :until (eq %state 'STOP)
+	       	      :do (sdl2:with-event-loop (:method :poll)
+			    
+			    	    
+			    (:keyup (:keysym keysym)
+				    (when (sdl2:scancode= (sdl2:scancode-value keysym)
+							  :scancode-escape)
+				      (sdl2:push-event :quit))
 
-		   (%modeling)
+				    (%draw-model (ask %manage-input 'get-view-by-key
+						      (sdl2:scancode keysym))))
+			    
+			    ;; TODO: check when first left button
+			    (:mousemotion (:x x :y y :state state :xrel xr :yrel yr)
+					  (format t
+						  "(~a, ~a): (~a, ~a) ~a~%"
+						  x y xr yr state)
+					  ;; TODO: how to control bit?
+					  (if (= state sdl2-ffi:+sdl-button-lmask+)
+					      (%draw-model
+					       (ask %manage-input 'get-view-by-mouse
+						    state x y xr yr))
+					      (%draw-model (ask %manage-input 'idle))))
+
+			    (:idle () (%draw-model (ask %manage-input 'idle)))
+			    (:quit () (setf %state 'STOP))))
 
 		   (%destroy-objects)
 		   (%quit-system))))))))

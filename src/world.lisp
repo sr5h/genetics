@@ -113,59 +113,37 @@
 
 
 ;; for modeling interactively
-(let ((o nil)
-      (camera-speed 0.5)
-      (camera-pos (make-vector 0.0 0.0 10.0))
-      (target-pos (make-vector 0.0 0.0 -2.0))
-      (up-vector (make-vector 0.0 1.0 0.0)))
-
-  (defun draw (world key)
+(let ((o nil))
+  (defun draw (world view)
     (let ((sphere (ask world 'get-sphere))
 	  (cube (ask world 'get-cube))
 	  (tet (ask world 'get-tet))
 
 	  (coords (length (ask world 'get-coords))))
 
-	(case key			;TODO:
-	  ((26)
-	   (setf camera-pos (vec+ camera-pos (vec* target-pos camera-speed))))
-	  ((22)
-	   (setf camera-pos (vec- camera-pos (vec* target-pos camera-speed))))
-	  ((4)
-	   (setf camera-pos (vec- camera-pos
-				  (vec* (normalize (cross target-pos up-vector))
-					camera-speed))))
-	  ((7)
-	   (setf camera-pos (vec+ camera-pos
-				  (vec* (normalize (cross target-pos up-vector))
-					camera-speed)))))
+      (if (null o)
+	  (labels ((iter (c acc n)
+    		     (cond ((= c coords) acc)
+    			   (t (iter (+ c 1)
+				    (append acc
+					    (list (case n
+						    ((0) sphere)
+						    ((1) cube)
+						    (t tet))))
+				    (random 3))))))
+	    (setf o (iter 0 nil (random 3)))))
+	
+	(ask world 'draw view o)))
+  
 
-	(if (null o)
-	    (labels ((iter (c acc n)
-    		       (cond ((= c coords) acc)
-    			     (t (iter (+ c 1)
-				      (append acc
-					      (list (case n
-						      ((0) sphere)
-						      ((1) cube)
-						      (t tet))))
-				      (random 3))))))
-	      (setf o (iter 0 nil (random 3)))))
-
-	(let ((view (look-at (make-matrix)
-			     camera-pos (vec+ camera-pos target-pos) up-vector)))
-	  
-	  (ask world 'draw view o))))
-      
-
-      ;; (ask world 'draw (list sphere sphere))
-      ;; (let ((cur-tick (sdl2:get-ticks)))
-      ;;   (let ((diff (- cur-tick *tick*))
-      ;; 	    (term 0))
-      ;; 	(if (> term diff)
-      ;; 	    (sdl2:delay (- term diff)))))
+  ;; (ask world 'draw (list sphere sphere))
+  ;; (let ((cur-tick (sdl2:get-ticks)))
+  ;;   (let ((diff (- cur-tick *tick*))
+  ;; 	    (term 0))
+  ;; 	(if (> term diff)
+  ;; 	    (sdl2:delay (- term diff)))))
 
   (defun destroy ()
     (loop :for i :in o :do
-	     (ask i 'destroy))
+      (ask i 'destroy))
     (setf o nil)))
