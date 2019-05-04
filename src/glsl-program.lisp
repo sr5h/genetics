@@ -21,28 +21,23 @@
 	(case message
 	  
 	  ((compile) (lambda (self vertex-shader-path fragment-shader-path)
-		       (let ((v-str (%read-sequence-from-file
-				     vertex-shader-path))
-			     (f-str (%read-sequence-from-file
-				     fragment-shader-path)))
-			 (setf %vertex-shader-id
-			       (gl:create-shader :vertex-shader))
-			 (setf %fragment-shader-id
-			       (gl:create-shader :fragment-shader))
+		       (let ((v-str (%read-sequence-from-file vertex-shader-path))
+			     (f-str (%read-sequence-from-file fragment-shader-path)))
+
+			 (setf %vertex-shader-id (gl:create-shader :vertex-shader))
+			 (setf %fragment-shader-id (gl:create-shader :fragment-shader))
 			 
 			 ;; compile vertex shader
 			 (gl:shader-source %vertex-shader-id v-str)
 			 (gl:compile-shader %vertex-shader-id)
 
 			 ;; verify vertex shader
-			 (if (gl:get-shader %vertex-shader-id
-					    :compile-status)
-			     (format t "~a compilation successful~%"
-				     :vertex-shader)
-			     (format t "Compilation failure in ~a:~% ~a~%"
+			 (if (gl:get-shader %vertex-shader-id :compile-status)
+			     (format t "~a compilation successful~%" :vertex-shader)
+			     (format t
+				     "Compilation failure in ~a:~% ~a~%"
 				     :vertex-shader
-				     (gl:get-shader-info-log
-				      %vertex-shader-id)))
+				     (gl:get-shader-info-log %vertex-shader-id)))
 			 ;; pass
 			 
 			 ;; compile fragment shader
@@ -63,21 +58,19 @@
 		    (gl:delete-shader %vertex-shader-id)
 		    (gl:delete-shader %Fragment-Shader-id)))
 
-	  ((set-uniform-4fv) (lambda (self variable-name lst)
-			       (let* ((loc (gl:get-uniform-location
-					    %program-id
-					    variable-name)))
-				 (%gl:uniform-matrix-4fv
-				  loc
-				  1
-				  :false (cffi:foreign-alloc
-					  :float
-					  :initial-contents lst)))))
+	  ((set-uniform-4fv)
+	   (lambda (self variable-name lst)
+	     (let* ((loc (gl:get-uniform-location %program-id
+						  variable-name)))
+	       (%gl:uniform-matrix-4fv loc
+				       1
+				       :false
+				       (cffi:foreign-alloc :float
+							   :initial-contents lst)))))
 
-	  ((set-uniform-3f) (lambda (self variable-name v0 v1 v2)
-			      (let* ((loc (gl:get-uniform-location
-					   %program-id
-					   variable-name)))
+	  ((set-uniform-3f)
+	   (lambda (self variable-name v0 v1 v2)
+	     (let* ((loc (gl:get-uniform-location %program-id variable-name)))
 				(%gl:uniform-3f loc v0 v1 v2))))
 	  
 	  ((use) (lambda (self) (gl:use-program %program-id)))

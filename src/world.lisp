@@ -24,34 +24,33 @@
 	   (ask %tet 'initialize)
 
 	   ;; objects coordinates
-	   (setf %coords
-		 `((,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-		   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-		   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
-		   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
-		   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-		   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-		   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-		   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-		   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-		   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-		   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-		   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))))))
+	   (setf %coords `((,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
+			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
+			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
+			   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
+			   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
+			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
+			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
+			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
+			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
+			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
+			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
+			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))))))
 
 	;; TODO: put-object
 	
@@ -59,48 +58,43 @@
 	((draw)
 	 (lambda (self view objects)
 	   (declare (ignore self))
-	   (labels
-	       ((iter (c o)
-		  (cond
-		    ((null o) t)
-		    ((null c)
-		     (error "coords not sufficient"))
-		    (t (let ((l (mat-to-list (translate (make-matrix)
-						    (caar c)
-						    (cadar c)
-						    (caddar c))))
-			     ;; (tick (sdl2:get-ticks))
+	   (labels ((iter (c o)
+		      (cond ((null o) t)
+			    ((null c)
+			     (error "coords not sufficient"))
+			    (t (let ((l (mat-to-list (translate (make-matrix)
+								(caar c)
+								(cadar c)
+								(caddar c))))
+				 ;; (tick (sdl2:get-ticks))
+				     )
+			     
+			     (set-uniform-4fv glsl-id "model" l)
+			     (set-uniform-4fv glsl-id "view" (mat-to-list view))
+			     (set-uniform-4fv glsl-id
+					      "projection"
+					      (mat-to-list
+					       (perspective (make-matrix)
+							    45.0
+							    (/ 800.0 600.0)
+							    0.1
+							    100.0)))
+			     
+			     ;; (set-uniform-3f
+			     ;;  glsl-id
+			     ;;  "ranColor"
+			     ;;  (coerce
+			     ;;   (sin (sdl2:get-ticks))
+			     ;;   'single-float)
+			     ;;  (coerce
+			     ;;   (cos (sdl2:get-ticks))
+			     ;;   'single-float)
+			     ;;  (coerce
+			     ;;   (+ 2.0 (sin (sdl2:get-ticks)))
+			     ;;   'single-float))
 			     )
-			 
-			 (set-uniform-4fv glsl-id "model" l)
-			 (set-uniform-4fv glsl-id
-					  "view"
-					  (mat-to-list view))
-			 (set-uniform-4fv glsl-id
-					  "projection"
-					  (mat-to-list
-					   (perspective
-					    (make-matrix)
-					    45.0
-					    (/ 800.0 600.0)
-					    0.1
-					    100.0)))
-
-			 ;; (set-uniform-3f
-			 ;;  glsl-id
-			 ;;  "ranColor"
-			 ;;  (coerce
-			 ;;   (sin (sdl2:get-ticks))
-			 ;;   'single-float)
-			 ;;  (coerce
-			 ;;   (cos (sdl2:get-ticks))
-			 ;;   'single-float)
-			 ;;  (coerce
-			 ;;   (+ 2.0 (sin (sdl2:get-ticks)))
-			 ;;   'single-float))
-			 )
-		       (ask (car o) 'draw)
-		       (iter (cdr c) (cdr o))))))
+			   (ask (car o) 'draw)
+			   (iter (cdr c) (cdr o))))))
 	     (iter %coords objects))))
 	
 	((get-sphere) (lambda (self) (declare (ignore self)) %sphere))
@@ -122,9 +116,9 @@
 (let ((o nil)
       (camera-speed 0.5)
       (camera-pos (make-vector 0.0 0.0 10.0))
-      (target-pos (make-vector 0.0 0.0 -1.0))
+      (target-pos (make-vector 0.0 0.0 -2.0))
       (up-vector (make-vector 0.0 1.0 0.0)))
-  
+
   (defun draw (world key)
     (let ((sphere (ask world 'get-sphere))
 	  (cube (ask world 'get-cube))
@@ -134,41 +128,32 @@
 
 	(case key			;TODO:
 	  ((26)
-	   (setf camera-pos (vec+ camera-pos
-				  (vec* target-pos camera-speed))))
+	   (setf camera-pos (vec+ camera-pos (vec* target-pos camera-speed))))
 	  ((22)
-	   (setf camera-pos (vec- camera-pos
-				  (vec* target-pos camera-speed))))
+	   (setf camera-pos (vec- camera-pos (vec* target-pos camera-speed))))
 	  ((4)
-	   (setf camera-pos (vec-
-			     camera-pos
-			     (vec*
-			      (normalize (cross target-pos up-vector))
-			      camera-speed))))
+	   (setf camera-pos (vec- camera-pos
+				  (vec* (normalize (cross target-pos up-vector))
+					camera-speed))))
 	  ((7)
-	   (setf camera-pos (vec+
-			     camera-pos
-			     (vec*
-			      (normalize (cross target-pos up-vector))
-			      camera-speed)))))
+	   (setf camera-pos (vec+ camera-pos
+				  (vec* (normalize (cross target-pos up-vector))
+					camera-speed)))))
 
 	(if (null o)
 	    (labels ((iter (c acc n)
     		       (cond ((= c coords) acc)
     			     (t (iter (+ c 1)
 				      (append acc
-					      (list
-					       (case n
-						 ((0) sphere)
-						 ((1) cube)
-						 (t tet))))
-					(random 3))))))
-		(setf o (iter 0 nil (random 3)))))
+					      (list (case n
+						      ((0) sphere)
+						      ((1) cube)
+						      (t tet))))
+				      (random 3))))))
+	      (setf o (iter 0 nil (random 3)))))
 
 	(let ((view (look-at (make-matrix)
-			     camera-pos
-			     (vec+ camera-pos target-pos)
-			     up-vector)))
+			     camera-pos (vec+ camera-pos target-pos) up-vector)))
 	  
 	  (ask world 'draw view o))))
       

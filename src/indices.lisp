@@ -23,15 +23,14 @@
 		    (member type (ask self 'type))))
 
 	  ((set-rect-function) (lambda (self)
-					 (declare (ignore self))
-					 (setf %fn #'generate-rect-indices)))
+				 (declare (ignore self))
+				 (setf %fn #'generate-rect-indices)))
 
 	  ((get-indices) (lambda (self &rest args)
 			   (declare (ignore self))
 			   (if %indices
 			       %indices
 			       (setf %indices (apply %fn args)))
-			       
 			   %indices))
 	  
 	  (t (get-method message %super-class)))))))

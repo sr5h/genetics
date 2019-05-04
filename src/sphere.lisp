@@ -21,22 +21,18 @@
   (if (< 90 angle0)
       nil
       (if (< 360 angle1)
-	  `(generate-vertex ,radius ,(+ step0 angle0) 0.0 ,step0 ,step1
-			    ,gen-fn)
+	  `(generate-vertex ,radius ,(+ step0 angle0) 0.0 ,step0 ,step1 ,gen-fn)
 	  (cond ((= state 0)
-		 `(append
-		   (,gen-fn ,radius ,angle0 ,angle1 ,type)
-		   (generate-vertex ,radius
-				    ,(+ step0 angle0) ,angle1
-				    ,step0 ,step1
-				    ,gen-fn
-				    :state 1)))
+		 `(append (,gen-fn ,radius ,angle0 ,angle1 ,type)
+			  (generate-vertex ,radius
+					   ,(+ step0 angle0) ,angle1 ,step0 ,step1
+					   ,gen-fn
+					   :state 1)))
 		((= state 1)
 		 `(append
 		   (,gen-fn ,radius ,angle0 ,angle1 ,type)
 		   (generate-vertex ,radius
-				    ,(- angle0 step0) ,(+ angle1 step1)
-				    ,step0 ,step1
+				    ,(- angle0 step0) ,(+ angle1 step1) ,step0 ,step1
 				    ,gen-fn
 				    :state 0)))))))
 
@@ -53,8 +49,7 @@
 
 			(setf %vertex-attributes '(3 3))
 			(setf %vertexes
-			      (generate-vertex 1.0 -90.0 0.0 10.0 20.0
-					       %coordinate-sphere))
+			      (generate-vertex 1.0 -90.0 0.0 10.0 20.0 %coordinate-sphere))
 
 			(delegate self %super-class 'initialize-obj)))
 	

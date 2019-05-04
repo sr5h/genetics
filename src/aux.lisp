@@ -17,7 +17,7 @@
 			(if (is-method-p method)
 			    method
 			    (iterate-objects (cdr objs))))))))
-	   (iterate-objects objects)))
+    (iterate-objects objects)))
 
 ;; (defun search-method (message &rest objects)
 ;;   (labels ((try (objs)
