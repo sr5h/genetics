@@ -1,37 +1,89 @@
 (in-package :genetics)
 
 (defun make-camera ()
-  (let ((%pos nil)
-	(%target nil)
-	(%direction nil)
-	(%world-up nil)
-	(%right nil)
-	(%up nil)
-	(%look-at nil))
-    
+  (let ((%super-class (make-root))
+
+	(%speed	 0.5)
+	(%pos	 (make-vector 0.0 0.0 10.0))
+	(%front	 (make-vector 0.0 0.0 -1.0))
+	(%up	 (make-vector 0.0 1.0 0.0))
+	(%yaw	 0.0)
+	(%pitch	 0.0))
+
     (lambda (message)
       (case message
-	
-	((initializef) (lambda (self)
-			 (setf %pos (make-vector 0.0 0.0 3.0))
-			 (setf %target (make-vector 0.0 0.0 0.0))
-			 (setf %direction (normalize (vec- %pos %target))) ;TODO:
-			 (setf %world-up (make-vector 0.0 1.0 0.0))
-			 (setf %right (normalize (ask %world-up 'cross %direction)))
-			 (setf %up (ask %direction 'cross %right))
-			 ;; TODO: to-list naming 
-			 (let* ((r (append (to-list %right) 0.0))
-				(u (append (to-list %up) 0.0))
-				(d (append (to-list %direction) 0.0))
-				(n (list 0.0 0.0 0.0 1.0))
-				(larr (append (list r) (list u) (list d) (list n)))
-				(type 'single-float))
-			   (setf %look-at
-				 (mat*
-				  (make-matrix :array (make-array '(4 4) 
-								  :initial-contents larr))
-				  (translate (set-identity (make-matrix))
-					     (coerce (* -1.0 (car %pos)) type)
-					     (coerce (* -1.0 (cadr %pos)) type)
-					     (coerce (* -1.0 (caddr %pos)) type)))))))))))
 
+	((get-speed) (lambda (self)
+		      (declare (ignore self))
+		      %speed))
+
+	((setf-speed) (lambda (self speed)
+			(declare (ignore self))
+			(setf %speed speed)))
+	
+	((get-pos) (lambda (self)
+		      (declare (ignore self))
+		      %pos))
+	
+	((setf-pos) (lambda (self v)
+		      (declare (ignore self))
+		      (setf %pos v)))
+
+	((get-front) (lambda (self)
+		      (declare (ignore self))
+		      %front))
+	
+	((setf-front) (lambda (self v)
+		      (declare (ignore self))
+		      (setf %front v)))
+
+	((get-up) (lambda (self)
+		      (declare (ignore self))
+		      %up))
+	
+	((setf-up) (lambda (self v)
+		      (declare (ignore self))
+		      (setf %up v)))
+
+	((get-yaw) (lambda (self)
+		      (declare (ignore self))
+		      %yaw))
+	
+	((setf-yaw) (lambda (self p)
+		      (declare (ignore self))
+		      (setf %yaw p)))
+
+	((get-pitch) (lambda (self)
+		      (declare (ignore self))
+		      %pitch))
+	
+	((setf-pitch) (lambda (self p)
+		      (declare (ignore self))
+		      (setf %pitch p)))
+
+	((setf-camera) (lambda (self s p f u y pit)
+			 (setf %speed s
+			       %pos p
+			       %front f
+			       %up u
+			       %yaw y
+			       %pitch pit)))
+
+	((get-camera) (lambda (self)
+			(list %speed %pos %front %up %yaw %pitch)))
+	
+	((look-at) (lambda (self)
+		     (declare (ignore self))
+		     (look-at (make-matrix)
+			      %pos
+			      (vec+ %pos %front)
+			      %up)))
+	
+	((type) (lambda (self)
+		  (declare (ignore self))	
+		  (extend-type 'camera %super-class)))
+	
+	((is-a) (lambda (self type)
+		  (member type (ask self 'type))))
+	
+	(t (get-method message %super-class))))))

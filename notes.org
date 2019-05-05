@@ -136,8 +136,6 @@
 
 * Daily
 
-** Implement camera class
-
 ** upgrade oop
 
 ** how to make virtual function?
@@ -150,6 +148,6 @@
 
    - State "DONE"       from              [2019-05-04 Sat 16:27]
 
+** DONE Implement camera class
 
-
-
+   - State "DONE"       from              [2019-05-05 Sun 17:47]

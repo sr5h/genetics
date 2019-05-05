@@ -20,6 +20,7 @@
 	(%screen-height height)
 	(%window nil)
 	(%context nil)
+	(%camera (make-camera))
 	(%manage-input (make-manage-input))
 	(%glsl-program (make-glsl-program))
 	(%world nil)
@@ -92,9 +93,9 @@
 				    (when (sdl2:scancode= (sdl2:scancode-value keysym)
 							  :scancode-escape)
 				      (sdl2:push-event :quit))
-
-				    (%draw-model (ask %manage-input 'get-view-by-key
-						      (sdl2:scancode keysym))))
+				    (ask %manage-input 'get-view-by-key
+					 %camera (sdl2:scancode keysym))
+				    (%draw-model (ask %camera 'look-at)))
 			    
 			    ;; TODO: check when first left button
 			    (:mousemotion (:x x :y y :state state :xrel xr :yrel yr)
@@ -103,13 +104,15 @@
 						  x y xr yr state)
 					  ;; TODO: how to control bit?
 					  (if (= state sdl2-ffi:+sdl-button-lmask+)
-					      (%draw-model
-					       (ask %manage-input 'get-view-by-mouse
-						    state x y xr yr))
-					      (%draw-model (ask %manage-input 'idle))))
+					      (ask %manage-input 'get-view-by-mouse
+						   %camera state x y xr yr))
+					  (%draw-model (ask %camera 'look-at)))
 
-			    (:idle () (%draw-model (ask %manage-input 'idle)))
+			    (:idle () (%draw-model (ask %camera 'look-at)))
 			    (:quit () (setf %state 'STOP))))
-
+ 
 		   (%destroy-objects)
 		   (%quit-system))))))))
+
+
+
