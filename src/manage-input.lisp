@@ -2,7 +2,7 @@
 
 (in-package :genetics)
 
-(defun make-manage-input ()
+(defun make-manage-input (&key (camera nil))
   (let ((%super-class (make-root))
 
 	(%mouse-sensitivity 0.05)
@@ -10,78 +10,44 @@
 
 	(%mouse-x nil)
 	(%mouse-y nil)
-	(%mouse-state nil))
+	(%mouse-state nil)
+
+	(%camera camera))
 
     (lambda (message)
       (case message
 
 	;; TODO:
-	((get-view-by-key) (lambda (self camera keyword)
-		 (declare (ignore self))
-		 (let* ((camera-setting (ask camera 'get-camera))
-			(speed (pop camera-setting))
-			(camera-pos (pop camera-setting))
-			(front (pop camera-setting))
-			(up (pop camera-setting))
-			(yaw (pop camera-setting))
-			(pitch (pop camera-setting)))
-		   
-		   (case keyword			;TODO:
-		     ((:scancode-w)
-		      (setf camera-pos (vec+ camera-pos (vec* front speed))))
-		     ((:scancode-s)
-		      (setf camera-pos (vec- camera-pos (vec* front speed))))
-		     ((:scancode-a)
-		      (setf camera-pos (vec- camera-pos
-					     (vec* (normalize (cross front up)) speed))))
-		     ((:scancode-d)
-		      (setf camera-pos (vec+ camera-pos
-					     (vec* (normalize (cross front up)) speed)))))
+	((key-up) (lambda (self keyword)
+		    (declare (ignore self))
+		    (ask %camera 'update-by-key-up keyword)))
 
-		   (ask camera 'setf-camera speed camera-pos front up yaw pitch))))
-	
-	;; TODO: pitch is strange!
-	((get-view-by-mouse)
-	 (lambda (self camera state x y xr yr)
-	   (declare (ignore self))
-	   (let* ((camera-setting (ask camera 'get-camera))
-		  (speed (pop camera-setting))
-		  (camera-pos (pop camera-setting))
-		  (front (pop camera-setting))
-		  (up (pop camera-setting))
-		  (yaw (pop camera-setting))
-		  (pitch (pop camera-setting)))
-	     (let ((offset-x (* %mouse-sensitivity xr))
-		   (offset-y yr))
-	       (setf %mouse-x x %mouse-y y %mouse-state state
-		     yaw (+ yaw offset-x) pitch (+ pitch offset-y))
+	;; TODO: pitch is strange! :FIXME:
+	((mouse-motion)	 (lambda (self state x y
+				  ;; xr yr
+				  )
+			   (declare (ignore self))
+			   (if (or (null %mouse-x) (null %mouse-y))
+			       (setf %mouse-x x
+				     %mouse-y y))
+			   (if (= state sdl2-ffi:+sdl-button-lmask+)
+			       (let ((offset-x (- x %mouse-x))
+				     (offset-y (- %mouse-y y)))
+				 (ask %camera 'update-by-mouse
+				      (* %mouse-sensitivity offset-x)
+				      (* %mouse-sensitivity
+					 %mouse-pitch-sensitivity
+					 offset-y))))
+			   ;; (format t "~a ~a ~a~%" x y state)
+			   (setf %mouse-x x
+				 %mouse-y y
+				 %mouse-state state)))
 
-	       (if (> pitch 89.0)
-		   (setf pitch 89.0))
-	       (if (< pitch -89.0)
-		   (setf pitch -89.0))
+      ((type) (lambda (self)
+		(declare (ignore self))
+		(extend-type 'manage-input %super-class)))
 
-	       (setf front
-		     (normalize (make-vector (coerce (* (cos (rad yaw))
-							(cos (rad pitch)))
-						     'single-float)
-					     (coerce (sin (rad pitch)) 'single-float)
-					     (coerce (* (sin (rad yaw))
-							(cos (rad pitch)))
-						     'single-float))))
-	       (format t "front : ~a~%" (ask front 'to-list))
-	       (ask camera 'setf-camera speed camera-pos front up yaw pitch)))))
+      ((is-a) (lambda (self type)
+		(member type (ask self 'type))))
 
-	;; ((idle) (lambda (self)
-	;; 	  (declare (ignore self))
-	;; 	  (look-at (make-matrix)
-	;; 		  %camera-pos (vec+ %camera-pos %target-pos) %up-vector)))
-	
-	((type) (lambda (self)
-		  (declare (ignore self))	
-		  (extend-type 'manage-input %super-class)))
-
-	((is-a) (lambda (self type)
-		  (member type (ask self 'type))))
-	
-	(t (get-method message %super-class))))))
+      (t (get-method message %super-class))))))
