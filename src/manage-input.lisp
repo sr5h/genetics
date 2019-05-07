@@ -22,7 +22,6 @@
 		    (declare (ignore self))
 		    (ask %camera 'update-by-key-up keyword)))
 
-	;; TODO: pitch is strange! :FIXME:
 	((mouse-motion)	 (lambda (self state x y
 				  ;; xr yr
 				  )
@@ -38,7 +37,7 @@
 				      (* %mouse-sensitivity
 					 %mouse-pitch-sensitivity
 					 offset-y))))
-			   ;; (format t "~a ~a ~a~%" x y state)
+
 			   (setf %mouse-x x
 				 %mouse-y y
 				 %mouse-state state)))
