@@ -14,76 +14,76 @@
 
 *** SOLVED How to show window?
 
-    - State "SOLVED" from [2019-04-08 Mon 17:50] \\
-      Adding/clarifying above: If you find that SDL_GetError() isn't
-      reporting anything and SDL_UpdateWindowSurface() / etc are
-      reporting 0 (no errors) then its more than likely that the above
-      code will be the fix, particularly on OSX. You would place the
-      event polling loop after your video setup/init/and initial draw
-      call. The original SDL SDK samples used to include the polling
-      but online tutorials typically include this much later in the
-      process (handling input) which can cause confusion. – Jonathan
-      M. May 14 '18 at 18:59
+- State "SOLVED" from [2019-04-08 Mon 17:50] \\
+  Adding/clarifying above: If you find that SDL_GetError() isn't
+  reporting anything and SDL_UpdateWindowSurface() / etc are
+  reporting 0 (no errors) then its more than likely that the above
+  code will be the fix, particularly on OSX. You would place the
+  event polling loop after your video setup/init/and initial draw
+  call. The original SDL SDK samples used to include the polling
+  but online tutorials typically include this much later in the
+  process (handling input) which can cause confusion. – Jonathan
+  M. May 14 '18 at 18:59
 **** version check
 
 ***** openGL 4.1 INTEL-12.4.7
 
-***** MAC OS X 10.14.3 Mojave MacBookAir6.1 
+***** MAC OS X 10.14.3 Mojave MacBookAir6.1
 
-    
+
 
 *** SOLVED main thread problem in SBCL
 
-    - State "SOLVED"     from              [2019-04-08 Mon 17:48]
+- State "SOLVED"     from              [2019-04-08 Mon 17:48]
 
-     ENVIRONMENTS (SDL2 + SLIME + SBCL + EMACS + MAC)
+  ENVIRONMENTS (SDL2 + SLIME + SBCL + EMACS + MAC)
 
 **** SOLUTION I
 ***** slime-connect in emacs
 
-**** SOLUTION II 
+**** SOLUTION II
 
 
-     The reason why I need my solution is that I don't want to be
-     fixed other environments in the specific problem.
+The reason why I need my solution is that I don't want to be
+fixed other environments in the specific problem.
 
 ****** 1. just modify codes for main thread problem in SBCL.
 
 ******* codes
-	#+BEGIN_SRC common-lisp
-	(defun main ()
-          (bt:interrupt-thread
-	    (sb-thread:main-thread)
-	    (lambda ()
-	      (sdl2:make-this-thread-main ;; why need? if not, not work.
-		(lambda ()
-	          (sdl-main))))))
-	#+END_SRC common-lisp
+#+BEGIN_SRC common-lisp
+(defun main ()
+(bt:interrupt-thread
+(sb-thread:main-thread)
+(lambda ()
+(sdl2:make-this-thread-main ;; why need? if not, not work.
+(lambda ()
+(sdl-main))))))
+#+END_SRC common-lisp
 
 ****** 2. run main program to render using cl-sdl2 in sbcl on either terminal or emacs eshell
 
-******* codes     
-	#+BEGIN_SRC common-lisp
-	(ql:quickload :swank)
-	(ql:quickload :genetics)
-	(in-package :genetics)
-	(bt:make-thread (lambda () (swank:create-server :port 4005 :dont-close t)))
-	(sdl2:make-this-thread-main (lambda () (main)))
-	#+END_SRC common-lisp
+******* codes
+#+BEGIN_SRC common-lisp
+(ql:quickload :swank)
+(ql:quickload :genetics)
+(in-package :genetics)
+(bt:make-thread (lambda () (swank:create-server :port 4005 :dont-close t)))
+(sdl2:make-this-thread-main (lambda () (main)))
+#+END_SRC common-lisp
 
 ****** 3. connect to created server(port:4005) using SLIME-CONNECT in emacs
 
 ****** 4. play coding interactively :D
-       
+
 **** SOLUTION III (googling)
 
 ***** reference
-      http://www.jonathanfischer.net/quick-notes-cepl-macos/
+http://www.jonathanfischer.net/quick-notes-cepl-macos/
 
 ****** codes in ~/.swank.lisp
-       #+BEGIN_SRC common-lisp
-       #+sbcl (setf swank:*communication-style* nil)
-       #+END_SRC common-lisp
+#+BEGIN_SRC common-lisp
+#+sbcl (setf swank:*communication-style* nil)
+#+END_SRC common-lisp
 
 ****** (sdl2:make-this-thread-main #'main) in REPL
 
@@ -97,38 +97,38 @@
 *** TODO sudo chmod x api-run-sbcl-swank-server.sh, but permission denied why?
 
 * quickload
-  
+
 ** TODO doesn't quickload in sbcl properly. why?
 
 * OOPs
 
 ** Basic Objects
-   
-   1. Messages and Methods convention
-   2. self variable to refer to oneself
+
+1. Messages and Methods convention
+2. self variable to refer to oneself
 
 ** Inheritance
 
-   1. internal superclass instances
-   2. match method directly in object, or get-method from internal instance if needed
-   3. delegation: explicitly use methods from internal objects
+1. internal superclass instances
+2. match method directly in object, or get-method from internal instance if needed
+3. delegation: explicitly use methods from internal objects
 
 ** Multiple inheritance
 
 * emacs
 
-  useful function when coding
+useful function when coding
 
 ** form feed
 
 ***  (C-q C-l)
 
 *** prev-page (C-x [)
-    
+
 *** next-page (C-x ])
 
 ** rgrep
-   to show collecting keywords (TODO, ...) at one buffer
+to show collecting keywords (TODO, ...) at one buffer
 
 ** counsel-projectile
 
@@ -136,18 +136,20 @@
 
 * Daily
 
+** fix bug of camera movement by mouse
+
 ** upgrade oop
 
 ** how to make virtual function?
 
 ** DONE Implement vector
 
-   - State "DONE"       from              [2019-05-04 Sat 16:27]
+- State "DONE"       from              [2019-05-04 Sat 16:27]
 
 ** DONE Implement loopk-at matrix
 
-   - State "DONE"       from              [2019-05-04 Sat 16:27]
+- State "DONE"       from              [2019-05-04 Sat 16:27]
 
 ** DONE Implement camera class
 
-   - State "DONE"       from              [2019-05-05 Sun 17:47]
+- State "DONE"       from              [2019-05-05 Sun 17:47]

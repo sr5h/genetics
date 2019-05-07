@@ -3,14 +3,33 @@
 (in-package :genetics)
 
 (defun make-camera ()
-  (let ((%super-class (make-root))
+  (let* ((%super-class (make-root))
 
-	(%speed	 0.5)
-	(%pos	 (make-vector 0.0 0.0 10.0))
-	(%front	 (make-vector 0.0 0.0 -1.0))
-	(%up	 (make-vector 0.0 1.0 0.0))
-	(%yaw	 0.0)
-	(%pitch	 0.0))
+	 (%speed 0.5)
+	 (%pos (make-vector 0.0 0.0 10.0))
+	 (%t-pos (make-vector 0.0 0.0 0.0))
+	 (%world-up (make-vector 0.0 1.0 0.0))
+	 ;; opposite direction of camera direction
+	 ;; %front is %t-pos - %pos
+	 (%front (normalize (vec- %t-pos %pos)))
+	 (%right (normalize (cross %front %world-up)))
+	 (%up (normalize (cross %right %front)))
+
+
+	 (%yaw -90.0)
+	 (%pitch 0.0))
+
+    (labels ((update-camera-vector ()
+	       (setf %front (normalize (make-vector (coerce (* (cos (rad %yaw))
+							       (cos (rad %pitch)))
+							    'single-float)
+						    (coerce (sin (rad %pitch))
+							    'single-float)
+						    (coerce (* (sin (rad %yaw))
+							       (cos (rad %pitch)))
+							    'single-float)))
+		     %right (normalize (cross %front %world-up))
+		     %up (normalize (cross %right %front)))))
 
     (lambda (message)
       (case message
@@ -34,8 +53,8 @@
 				     "~a ~a ~a~%"
 				     (ask %pos 'to-list)
 				     (ask %front 'to-list)
-				     (ask (vec+ %pos %front) 'to-list)
-				     )))
+				     (ask (vec+ %pos %front) 'to-list))))
+
 	((update-by-mouse) (lambda (self offset-x offset-y)
 			     (declare (ignore self))
 			     (setf %yaw (+ %yaw offset-x)
@@ -45,24 +64,8 @@
 				 (setf %pitch 89.0))
 			     (if (< %pitch -89.0)
 				 (setf %pitch -89.0))
-			     ;; TODO:
-			     (setf %front
-				   (normalize (make-vector (coerce (* (cos (rad %yaw))
-								      (cos (rad %pitch)))
-								   'single-float)
-							   (coerce (sin (rad %pitch))
-								   'single-float)
-							   (coerce (* (sin (rad %yaw))
-								      (cos (rad %pitch)))
-								   'single-float))))
-			     ;; TODO:
-			     (let ((p1 (ask %pos 'get 1))
-				   (p2 (ask %pos 'get 2))
-				   (p3 (ask %pos 'get 3)))
-			       (let ((length (sqrt (+ (expt p1 2)
-						      (expt p2 2)
-						      (expt p3 2)))))
-				 (setf %pos (ask %front 'mul (* -1.0 length)))))
+
+			     (update-camera-vector)
 
 			     (format t
 				     "~a ~a ~a~%"
@@ -146,4 +149,4 @@
     ((is-a) (lambda (self type)
 	      (member type (ask self 'type))))
 
-    (t (get-method message %super-class))))))
+    (t (get-method message %super-class)))))))

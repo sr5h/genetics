@@ -5,7 +5,7 @@
 (defun make-manage-input (&key (camera nil))
   (let ((%super-class (make-root))
 
-	(%mouse-sensitivity 0.05)
+	(%mouse-sensitivity 0.10)
 	(%mouse-pitch-sensitivity 5.0)
 
 	(%mouse-x nil)
