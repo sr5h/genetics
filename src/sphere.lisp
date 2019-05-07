@@ -4,14 +4,22 @@
   `(* pi (/ ,ang 180.0)))
 
 
-(defmacro %coordinate-sphere (r a0 a1 type)
+(defmacro %coordinate-sphere-with-color (r a0 a1 type)
   `(list ,(coerce (* r (cos (rad a0)) (sin (rad a1))) type)   ; x
 	 ,(coerce (* r (sin (rad a0))) type)                  ; y
 	 ,(coerce (* r (cos (rad a0)) (cos (rad a1))) type)   ; z
-	 
+
 	 ,(coerce (* r (cos (rad a0)) (sin (rad a1))) type)   ; r
 	 ,(coerce (* r (sin (rad a0))) type)                  ; g
 	 ,(coerce (* r (cos (rad a0)) (cos (rad a1))) type))) ; b
+
+(defmacro %coordinate-sphere (r a0 a1 type)
+  `(list ,(coerce (* r (cos (rad a0)) (sin (rad a1))) type)   ; x
+	 ,(coerce (* r (sin (rad a0))) type)                  ; y
+	 ,(coerce (* r (cos (rad a0)) (cos (rad a1))) type)
+	 1.0
+	 1.0
+	 1.0))   ; z
 
 (defmacro generate-vertex (radius angle0 angle1 step0 step1
 			   gen-fn
@@ -35,28 +43,32 @@
 				    ,(- angle0 step0) ,(+ angle1 step1) ,step0 ,step1
 				    ,gen-fn
 				    :state 0)))))))
-
+
 (defun make-sphere ()
   (let ((%super-class (make-draw-able-object))
-	(%vertexes nil)			;point
-	(%vertex-attributes nil))
+	(%vertexes nil)			; point
+	(%vertex-attributes nil)
+	)
 
     (lambda (message)
       (case message
 
 	((initialize) (lambda (self)
+
 			(ask %super-class 'initialize)
 
+			(setf %vertexes (generate-vertex 1.0 -90.0 0.0 10.0 20.0
+							 %coordinate-sphere-with-color))
 			(setf %vertex-attributes '(3 3))
-			(setf %vertexes
-			      (generate-vertex 1.0 -90.0 0.0 10.0 20.0 %coordinate-sphere))
 
-			(delegate self %super-class 'initialize-obj)))
-	
+			(ask self 'initialize-obj)
+			;; (delegate self %super-class 'initialize-obj)
+			))
+
 	((type) (lambda (self)
 		  (declare (ignore self))
 		  (extend-type 'sphere %super-class)))
-	
+
 	;; TODO:
 	((is-a) (lambda (self type)
 		  (member type (ask self 'type))))
@@ -82,5 +94,5 @@
 		     ;; destroy
 
 		     (ask %super-class 'destroy)))
-	
+
 	(t (get-method message %super-class))))))

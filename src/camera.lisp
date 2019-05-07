@@ -38,16 +38,16 @@
 			      (declare (ignore self))
 			      (case keyword			;TODO:
 				((:scancode-w)
-				 (setf %pos (vec+ %pos (vec* %front %speed))))
+				 (setf %pos (vec+ %pos (vec*s %front %speed))))
 				((:scancode-s)
-				 (setf %pos (vec- %pos (vec* %front %speed))))
+				 (setf %pos (vec- %pos (vec*s %front %speed))))
 				((:scancode-a)
 				 (setf %pos (vec- %pos
-						  (vec* (normalize (cross %front %up))
+						  (vec*s (normalize (cross %front %up))
 							%speed))))
 				((:scancode-d)
 				 (setf %pos (vec+ %pos
-						  (vec* (normalize (cross %front %up))
+						  (vec*s (normalize (cross %front %up))
 							%speed)))))
 			      (format t
 				     "~a ~a ~a~%"
@@ -73,67 +73,6 @@
 				     (ask %front 'to-list)
 				     (ask (vec+ %pos %front) 'to-list)
 				     )))
-
-    ((get-speed) (lambda (self)
-		   (declare (ignore self))
-		   %speed))
-
-    ((setf-speed) (lambda (self speed)
-		    (declare (ignore self))
-		    (setf %speed speed)))
-
-    ((get-pos) (lambda (self)
-		 (declare (ignore self))
-		 %pos))
-
-    ((setf-pos) (lambda (self v)
-		  (declare (ignore self))
-		  (setf %pos v)))
-
-    ((get-front) (lambda (self)
-		   (declare (ignore self))
-		   %front))
-
-    ((setf-front) (lambda (self v)
-		    (declare (ignore self))
-		    (setf %front v)))
-
-    ((get-up) (lambda (self)
-		(declare (ignore self))
-		%up))
-
-    ((setf-up) (lambda (self v)
-		 (declare (ignore self))
-		 (setf %up v)))
-
-    ((get-%yaw) (lambda (self)
-		 (declare (ignore self))
-		 %yaw))
-
-    ((setf-yaw) (lambda (self p)
-		  (declare (ignore self))
-		  (setf %yaw p)))
-
-    ((get-pitch) (lambda (self)
-		   (declare (ignore self))
-		   %pitch))
-
-    ((setf-pitch) (lambda (self p)
-		    (declare (ignore self))
-		    (setf %pitch p)))
-
-    ((setf-camera) (lambda (self s p f u y pit)
-		     (declare (ignore self))
-		     (setf %speed s
-			   %pos p
-			   %front f
-			   %up u
-			   %yaw y
-			   %pitch pit)))
-
-    ((get-camera) (lambda (self)
-		    (declare (ignore self))
-		    (list %speed %pos %front %up %yaw %pitch)))
 
     ((look-at) (lambda (self)
 		 (declare (ignore self))

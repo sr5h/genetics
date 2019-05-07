@@ -10,7 +10,7 @@
     (labels ((%set-attr-pointers (cnt l stride offset)
 	       (cond ((null l))
 		     ;; TODO:
-                     (t
+		     (t
 		      (gl:vertex-attrib-pointer cnt
 						(car l)
 						:float
@@ -20,7 +20,7 @@
 
 		      (gl:enable-vertex-attrib-array cnt)
 		      (%set-attr-pointers (+ cnt 1) (cdr l) stride (+ offset (car l)))))))
-      
+
       (lambda (message)
 	(case message
 
@@ -32,20 +32,20 @@
 			      (setf %vertex-array-object-id (gl:gen-vertex-array)))
 
 			  (gl:bind-vertex-array %vertex-array-object-id)
-			  
-			  ;; VBO		
+
+			  ;; VBO
 			  (if (eq %vertex-buffer-object-id nil)
-		       	      (setf %vertex-buffer-object-id (gl:gen-buffer)))
+			      (setf %vertex-buffer-object-id (gl:gen-buffer)))
 
 			  ;; EBO
 			  (if (eq %element-buffer-object-id nil)
-		       	      (setf %element-buffer-object-id (gl:gen-buffer)))
+			      (setf %element-buffer-object-id (gl:gen-buffer)))
 
 			  (if (or (> 0 %vertex-array-object-id)
 				  (> 0 %vertex-buffer-object-id)
 				  (> 0 %element-buffer-object-id))
 			      (error "didn't initialize draw able objects"))
-			  
+
 			  (ask %indices 'set-rect-function)))
 
 	  ((initialize-obj)
@@ -55,7 +55,7 @@
 		    (vert-attrs (ask self 'get-attributes))
 		    (indices
 		     (ask %indices 'get-indices
-			  0 (/ verts-length (reduce #'+ vert-attrs))))
+			  0 (/ verts-length (reduce #'+ vert-attrs)))) ; TODO:
 
 		    (inds-length (length indices))
 		    (verts-gl-array (gl:alloc-gl-array :float verts-length))
@@ -66,7 +66,7 @@
 			 (setf (gl:glaref verts-gl-array index) x)
 			 (setf index (+ index 1)))
 		     verts)
-	       
+
 	       (setf index 0)
 	       (mapc #'(lambda (x)
 			 (setf (gl:glaref indices-gl-array index) x)
@@ -84,7 +84,7 @@
 	       (gl:free-gl-array indices-gl-array)
 	       (gl:bind-buffer :array-buffer 0)
 	       (gl:bind-vertex-array 0))))
-	  
+
 	  ;; TODO: if type message doesn't exist,
 
 	  ((type) (lambda (self)
@@ -93,7 +93,7 @@
 
 	  ((is-a) (lambda (self type)
 		    (member type (ask self 'type))))
-	  
+
 	  ((get-vao) (lambda (self)
 		       (declare (ignore self))
 		       %vertex-array-object-id))
@@ -105,26 +105,26 @@
 	  ((get-ebo) (lambda (self)
 		       (declare (ignore self))
 		       %element-buffer-object-id))
-	  
+
 	  ((draw) (lambda (self)		;delegated
 		    (declare (ignore self))
 		    (gl:bind-vertex-array %vertex-array-object-id)
 		    (%gl:draw-elements :triangles
-				       ;; 1998 ; TODO: how to get indices length? 
+				       ;; 1998 ; TODO: how to get indices length?
 				       (length (ask %indices 'get-indices))
 				       :unsigned-int
 				       0)
 		    (gl:bind-vertex-array 0)))
-	  
+
 	  ((destroy) (lambda (self)
 		       (declare (ignore self))
-		       
+
 		       (if (not (eq %element-buffer-object-id nil))
 			   (gl:delete-buffers (list %element-buffer-object-id)))
 
-		       (if (not (eq %vertex-buffer-object-id nil))	
+		       (if (not (eq %vertex-buffer-object-id nil))
 			   (gl:delete-buffers (list %vertex-buffer-object-id)))
-		       (if (not (eq %vertex-array-object-id nil))	
+		       (if (not (eq %vertex-array-object-id nil))
 			   (gl:delete-vertex-arrays (list %vertex-array-object-id)))))
-	  
+
 	  (t (get-method message %super-class)))))))

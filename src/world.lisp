@@ -5,11 +5,12 @@
 	(%coords nil)
 	(%sphere nil)
 	(%cube nil)
-	(%tet nil))
-    
+	(%tet nil)
+	(%light nil))
+
     (lambda (message)
       (case message
-	
+
 	((initialize)
 	 (lambda (self)
 	   (declare (ignore self))
@@ -22,6 +23,9 @@
 	   ;; tetrahedron
 	   (setf %tet (make-tetrahedron))
 	   (ask %tet 'initialize)
+	   ;; light cube
+	   (setf %light (make-light))
+	   (ask %light 'initialize)
 
 	   ;; objects coordinates
 	   (setf %coords `((,(random 5.0) ,(random 5.0) ,(random 5.0))
@@ -50,7 +54,9 @@
 			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
 			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
 			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))))))
+			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
+			   (-3.5 3.0 10.0) ; light position
+			   ))))
 
 	;; TODO: put-object
 	
@@ -68,7 +74,7 @@
 								(caddar c))))
 				 ;; (tick (sdl2:get-ticks))
 				     )
-			     
+
 			     (set-uniform-4fv glsl-id "model" l)
 			     (set-uniform-4fv glsl-id "view" (mat-to-list view))
 			     (set-uniform-4fv glsl-id
@@ -96,18 +102,20 @@
 			   (ask (car o) 'draw)
 			   (iter (cdr c) (cdr o))))))
 	     (iter %coords objects))))
-	
+
 	((get-sphere) (lambda (self) (declare (ignore self)) %sphere))
 	((get-cube) (lambda (self) (declare (ignore self)) %cube))
 	((get-tet) (lambda (self) (declare (ignore self)) %tet))
-	
+	((get-light) (lambda (self) (declare (ignore self)) %light))
+
 	((get-coords) (lambda (self) (declare (ignore self)) %coords))
-	
+
 	((destroy) (lambda (self)
 		     (declare (ignore self))
 		     (ask %sphere 'destroy)
 		     (ask %cube 'destroy)
 		     (ask %tet 'destroy)
+		     (ask %light 'destroy)
 		     (destroy)
 		     ))))))
 
@@ -118,13 +126,17 @@
     (let ((sphere (ask world 'get-sphere))
 	  (cube (ask world 'get-cube))
 	  (tet (ask world 'get-tet))
+	  (light (ask world 'get-light))
 
 	  (coords (length (ask world 'get-coords))))
 
       (if (null o)
 	  (labels ((iter (c acc n)
-    		     (cond ((= c coords) acc)
-    			   (t (iter (+ c 1)
+		     (cond ((= c coords) acc)
+			   ((= c (- coords 1)) (iter (+ c 1)
+						     (append acc (list light))
+						     (random 3)))
+			   (t (iter (+ c 1)
 				    (append acc
 					    (list (case n
 						    ((0) sphere)
@@ -132,16 +144,16 @@
 						    (t tet))))
 				    (random 3))))))
 	    (setf o (iter 0 nil (random 3)))))
-	
+
 	(ask world 'draw view o)))
-  
+
 
   ;; (ask world 'draw (list sphere sphere))
   ;; (let ((cur-tick (sdl2:get-ticks)))
   ;;   (let ((diff (- cur-tick *tick*))
-  ;; 	    (term 0))
-  ;; 	(if (> term diff)
-  ;; 	    (sdl2:delay (- term diff)))))
+  ;;	    (term 0))
+  ;;	(if (> term diff)
+  ;;	    (sdl2:delay (- term diff)))))
 
   (defun destroy ()
     (loop :for i :in o :do
