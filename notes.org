@@ -136,7 +136,7 @@ to show collecting keywords (TODO, ...) at one buffer
 
 * Daily
 
-** fix bug of camera movement by mouse
+** Implement more hierarchically
 
 ** upgrade oop
 
@@ -153,3 +153,7 @@ to show collecting keywords (TODO, ...) at one buffer
 ** DONE Implement camera class
 
 - State "DONE"       from              [2019-05-05 Sun 17:47]
+
+** DONE fix bug of camera movement by mouse
+
+- State "DONE"       from              [2019-05-07 Tue 19:24]
