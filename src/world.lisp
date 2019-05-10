@@ -16,20 +16,27 @@
 	   (declare (ignore self))
 	   ;; sphere
 	   (setf %sphere (make-draw-able-object))
-	   (ask %sphere 'initialize)
+	   (ask %sphere 'initialize-gl)
 	   (let ((obj (make-default-sphere)))
-	     (print (ask obj 'setf-vertexes))
-	     (ask %sphere 'initialize-obj obj))
+	     (print (ask obj 'set-vertexes))
+	     (ask %sphere 'initialize-obj obj #'generate-rect-indices))
 
-	   ;; ;; ;; cube
-	   ;; (setf %cube (make-cube))
-	   ;; (ask %cube 'initialize)
+	   ;; cube
+	   (setf %cube (make-draw-able-object))
+	   (ask %cube 'initialize-gl)
+	   (let ((obj (make-default-cube)))
+	     (ask obj 'set-vertexes)
+	     (ask %cube 'initialize-obj obj #'generate-cube-indices))
 	   ;; ;; tetrahedron
 	   ;; (setf %tet (make-tetrahedron))
 	   ;; (ask %tet 'initialize)
-	   ;; ;; light cube
-	   ;; (setf %light (make-light))
-	   ;; (ask %light 'initialize)
+	   ;; light
+	   (setf %light (make-draw-able-object))
+	   (ask %light 'initialize-gl)
+	   (let ((obj (make-light)))
+	     (ask obj 'set-vertexes)
+	     (ask %light 'initialize-obj obj #'generate-rect-indices))
+
 
 	   ;; objects coordinates
 	   (setf %coords `((,(random 5.0) ,(random 5.0) ,(random 5.0))
@@ -117,9 +124,9 @@
 	((destroy) (lambda (self)
 		     (declare (ignore self))
 		     (ask %sphere 'destroy)
-		     ;; (ask %cube 'destroy)
+		     (ask %cube 'destroy)
 		     ;; (ask %tet 'destroy)
-		     ;; (ask %light 'destroy)
+		     (ask %light 'destroy)
 		     (destroy)
 		     ))))))
 
@@ -128,26 +135,27 @@
 (let ((o nil))
   (defun draw (world view)
     (let ((sphere (ask world 'get-sphere))
-	  ;; (cube (ask world 'get-cube))
+	  (cube (ask world 'get-cube))
 	  ;; (tet (ask world 'get-tet))
-	  ;; (light (ask world 'get-light))
+	  (light (ask world 'get-light))
 
 	  (coords (length (ask world 'get-coords))))
 
       (if (null o)
 	  (labels ((iter (c acc n)
 		     (cond ((= c coords) acc)
-			   ;; ((= c (- coords 1)) (iter (+ c 1)
-			   ;;			     (append acc (list light))
-			   ;;			     (random 3)))
+			   ((= c (- coords 1)) (iter (+ c 1)
+						     (append acc (list light))
+						     (random 3)))
 			   (t (iter (+ c 1)
 				    (append acc
-					    (list sphere
-						  ;; (case n
+					    (list
+						  (case n
 						  ;;   ((0) sphere)
-						  ;;   ((1) cube)
+						    ((1) cube)
 						  ;;   (t tet)
-						  ;;   )
+						    (t sphere)
+						    )
 						  ))
 				    (random 3))))))
 	    (setf o (iter 0 nil (random 3)))))

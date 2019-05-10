@@ -87,7 +87,7 @@
 
 			    (:keyup (:keysym keysym)
 				    (when (sdl2:scancode= (sdl2:scancode-value keysym)
-							  :scancode-escape)
+							  :scancode-q)
 				      (sdl2:push-event :quit))
 				    (ask %manage-input 'key-up (sdl2:scancode keysym))
 				    (%draw-model (ask %camera 'look-at)))

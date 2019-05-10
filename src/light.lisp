@@ -2,42 +2,33 @@
 
 (in-package :genetics)
 
-;; TODO: Implement Hierarchy. This is a cube.
+
 (defun make-light ()
-  (let ((%super-class (make-cube))
-	(%vertexes nil)
-	(%vertex-attributes nil)
-	(%light nil))
+  (let ((%super-class (make-pure-sphere))
+
+	(%vertexes (make-object-vertexes)))
 
     (lambda (message)
       (case message
 
-	((initialize) (lambda (self)
-			;; (declare (ignore self))
-			(ask %super-class 'initialize)
-
-			(setf %vertexes (generate-vertex 1.0 -90.0 0.0 10.0 20.0
-							 %coordinate-sphere))
-			(setf %vertex-attributes '(3 3))
-
-			;; (ask self 'initialize-obj)
-			))
+	((set-vertexes) (lambda (self)
+			  (declare (ignore self))
+			  ;; TODO: think of lamda's argument
+			  (ask %vertexes 'addf-fns #'(lambda (&optional l)
+						       (list 1.0 1.0 1.0))
+			       ;; sphere-default-attributes
+			       )
+			  ;; assemble vertextes and attributes
+			  (ask %vertexes 'assemblef-vertexes
+			       (ask %super-class 'get-points))))
 
 	((get-vertexes) (lambda (self)
 			  (declare (ignore self))
-			  (if %vertexes
-			      %vertexes
-			      (error "Initialize vertexes, first!"))))
+			  (ask %vertexes 'get-vertexes)))
 
 	((get-attributes) (lambda (self)
 			    (declare (ignore self))
-			    (if %vertex-attributes
-				%vertex-attributes
-				(error
-				 "Initialize vertex-attributes, too!"))))
-
-	;; ((draw) (lambda (self)
-	;;	  (delegate self %super-class 'draw)))
+			    (ask %vertexes 'get-attributes)))
 
 	((type) (lambda (self)
 		  (declare (ignore self))
@@ -45,9 +36,5 @@
 
 	((is-a) (lambda (self type)
 		  (member type (ask self 'type))))
-
-	((destroy) (lambda (self)
-		     (declare (ignore self))
-		     (ask %super-class 'destroy)))
 
 	(t (get-method message %super-class))))))

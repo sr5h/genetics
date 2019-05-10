@@ -5,7 +5,7 @@
 	(%vertex-array-object-id nil)
 	(%vertex-buffer-object-id nil)
 	(%element-buffer-object-id nil)
-	(%indices (make-indices)))
+	(%indices nil))
 
     (labels ((%set-attr-pointers (cnt l stride offset)
 	       (cond ((null l))
@@ -24,7 +24,7 @@
       (lambda (message)
 	(case message
 
-	  ((initialize) (lambda (self)
+	  ((initialize-gl) (lambda (self)
 			  (declare (ignore self))
 			  ;; TODO: make selectively
 			  ;; VAO
@@ -46,22 +46,23 @@
 				  (> 0 %element-buffer-object-id))
 			      (error "didn't initialize draw able objects"))
 
-			  (ask %indices 'set-rect-function)))
+			  ))
 
 	  ((initialize-obj)
-	   (lambda (self obj)
+	   (lambda (self obj i-fn)
 	     (let* ((verts (ask obj 'get-vertexes))
 		    (verts-length (length verts))
 		    (vert-attrs (ask obj 'get-attributes))
 		    (indices
-		     (ask %indices 'get-indices
-			  0 (/ verts-length (reduce #'+ vert-attrs)))) ; TODO:
+		     (funcall i-fn
+			      0 (/ verts-length (reduce #'+ vert-attrs)))) ; TODO:
 
 		    (inds-length (length indices))
 		    (verts-gl-array (gl:alloc-gl-array :float verts-length))
 		    (indices-gl-array (gl:alloc-gl-array :unsigned-int inds-length))
 		    (index 0))
 
+	       (setf %indices indices)
 	       (mapc #'(lambda (x)
 			 (setf (gl:glaref verts-gl-array index) x)
 			 (setf index (+ index 1)))
@@ -111,7 +112,7 @@
 		    (gl:bind-vertex-array %vertex-array-object-id)
 		    (%gl:draw-elements :triangles
 				       ;; 1998 ; TODO: how to get indices length?
-				       (length (ask %indices 'get-indices))
+				       (length %indices)
 				       :unsigned-int
 				       0)
 		    (gl:bind-vertex-array 0)))

@@ -23,6 +23,7 @@
    (:file "matrix")
    (:file "indices")
    (:file "draw-able-object")
+   (:file "object-vertexes")
    (:file "cube")
    (:file "sphere")
    (:file "tetrahedron")

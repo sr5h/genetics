@@ -145,45 +145,16 @@
 			   (step1 20.0)
 			   (type 'single-float))
   (let ((%super-class (make-root))
-
+	;; TODO: TOO BIG procedure at runtime :(
 	(%points (generate-sphere-vertex radius angle0 angle1 step0 step1
-					 type 0 nil)) ; TOO BIG procedure at runtime :(
-	(%attr-generate-fns nil)
-	(%vertex-attributes '(3))
-	(%vertexes nil))
+					 type 0 nil)))
 
     (lambda (message)
       (case message
-	((assemblef-vertexes)
-	 (lambda (self)
-	   (declare (ignore self))
-	   (labels ((iter (points num-of-points-vertex vertex acc)
-		      (cond ((null points) (values (append acc (list 1.0 1.0 1.0)) vertex))
-			    ((= 3 num-of-points-vertex)
-			     (let ((attrs (mapcan #'(lambda (fn) (funcall fn vertex))
-						  %attr-generate-fns)))
-			       (iter points 0 nil (append acc attrs))))
-			    (t (iter (cdr points)
-				     (+ 1 num-of-points-vertex)
-				     (append vertex (list (car points)))
-				     (append acc (list (car points))))))))
-	     (multiple-value-bind (vertexes last-vertex) (iter %points 0 nil nil)
-	       (setf %vertexes
-		     (append vertexes
-			     (mapcan #'(lambda (fn)
-					 (let ((attr (funcall fn last-vertex)))
-					   (setf %vertex-attributes
-						 (append %vertex-attributes
-							 (list (length attr))))
-					   attr))
-				     %attr-generate-fns)))))))
 
-	((addf-fns) (lambda (self &rest fns)
-		      (declare (ignore self))
-		      (mapc #'(lambda (fn)
-				(setf %attr-generate-fns
-				      (append %attr-generate-fns (list fn))))
-			    fns)))
+	((get-points) (lambda (self)
+			(declare (ignore self))
+			%points))
 
 	((type) (lambda (self)
 		  (declare (ignore self))
@@ -192,27 +163,33 @@
 	((is-a) (lambda (self type)
 		  (member type (ask self 'type))))
 
-	((get-vertexes) (lambda (self)
-			  (declare (ignore self))
-			  (if %vertexes
-			      %vertexes
-			      (error "Initialize vertexes, first!"))))
-
-	((get-attributes) (lambda (self)
-			    (declare (ignore self))
-			    %vertex-attributes))
-
 	(t (get-method message %super-class))))))
 
 (defun make-default-sphere ()
-  (let ((%super-class (make-pure-sphere)))
+  (let ((%super-class (make-pure-sphere))
+	;; Is this composition?
+	(%vertexes (make-object-vertexes)))
 
     (lambda (message)
       (case message
 
-	((setf-vertexes) (lambda (self)
-			(ask self 'addf-fns #'sphere-default-attributes)
-			(ask self 'assemblef-vertexes)))
+	((set-vertexes) (lambda (self)
+			  (declare (ignore self))
+			  (ask %vertexes 'addf-fns #'sphere-default-attributes)
+			  ;; assemble vertextes and attributes
+			  (ask %vertexes 'assemblef-vertexes
+			       (ask %super-class 'get-points))))
+
+	((set-indices) (lambda (self indices)
+			 ))
+
+	((get-vertexes) (lambda (self)
+			  (declare (ignore self))
+			  (ask %vertexes 'get-vertexes)))
+
+	((get-attributes) (lambda (self)
+			    (declare (ignore self))
+			    (ask %vertexes 'get-attributes)))
 
 	((type) (lambda (self)
 		  (declare (ignore self))
@@ -220,9 +197,5 @@
 
 	((is-a) (lambda (self type)
 		  (member type (ask self 'type))))
-
-	((destroy) (lambda (self)
-		     (declare (ignore self))
-		     (ask %super-class 'destroy)))
 
 	(t (get-method message %super-class))))))

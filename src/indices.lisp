@@ -1,39 +1,46 @@
 (in-package :genetics)
 
+(defun generate-rect-indices (x l)
+  (if (<= l (+ x 2))
+		   nil
+		   (append (list x (+ x 1) (+ x 2)
+				 (+ x 2) (+ x 1) (+ x 3))
+			   (generate-rect-indices (+ x 2) l))))
+
+(defun generate-cube-indices (x l)
+  (let ((insufficient-indices (generate-rect-indices x l)))
+		 (append insufficient-indices
+			 (list 6 7 0 0 7 1
+			       1 7 3 3 7 5
+			       0 6 2 2 6 4))))
+
 (defun make-indices ()
   (let ((%super-class (make-root))
 	(%fn nil)
 	(%indices nil))
 
-    (labels ((generate-rect-indices (x l)
-	       (if (<= l (+ x 2))
-		   nil
-		   (append (list x (+ x 1) (+ x 2)
-				 (+ x 2) (+ x 1) (+ x 3))
-			   (generate-rect-indices (+ x 2) l)))))
+    (lambda (message)
+      (case message
 
-      (lambda (message)
-	(case message
+	((set-function) (lambda (self fn)
+			       (declare (ignore self))
+			       (setf %fn fn)))
 
-	  ((type) (lambda (self)
-		    (declare (ignore self))
-		    (extend-type 'indices %super-class)))
+	((get-indices) (lambda (self &rest args)
+			 (declare (ignore self))
+			 (if %indices
+			     %indices
+			     (setf %indices (apply %fn args)))
+			 %indices))
 
-	  ((is-a) (lambda (self type)
-		    (member type (ask self 'type))))
+	((type) (lambda (self)
+		  (declare (ignore self))
+		  (extend-type 'indices %super-class)))
 
-	  ((set-rect-function) (lambda (self)
-				 (declare (ignore self))
-				 (setf %fn #'generate-rect-indices)))
+	((is-a) (lambda (self type)
+		  (member type (ask self 'type))))
 
-	  ((get-indices) (lambda (self &rest args)
-			   (declare (ignore self))
-			   (if %indices
-			       %indices
-			       (setf %indices (apply %fn args)))
-			   %indices))
-
-	  (t (get-method message %super-class)))))))
+	(t (get-method message %super-class))))))
 
 
 
