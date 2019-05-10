@@ -49,10 +49,10 @@
 			  (ask %indices 'set-rect-function)))
 
 	  ((initialize-obj)
-	   (lambda (self)
-	     (let* ((verts (ask self 'get-vertexes))
+	   (lambda (self obj)
+	     (let* ((verts (ask obj 'get-vertexes))
 		    (verts-length (length verts))
-		    (vert-attrs (ask self 'get-attributes))
+		    (vert-attrs (ask obj 'get-attributes))
 		    (indices
 		     (ask %indices 'get-indices
 			  0 (/ verts-length (reduce #'+ vert-attrs)))) ; TODO:
@@ -124,6 +124,7 @@
 
 		       (if (not (eq %vertex-buffer-object-id nil))
 			   (gl:delete-buffers (list %vertex-buffer-object-id)))
+
 		       (if (not (eq %vertex-array-object-id nil))
 			   (gl:delete-vertex-arrays (list %vertex-array-object-id)))))
 

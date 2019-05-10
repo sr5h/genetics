@@ -62,7 +62,6 @@
 			(setf %vertex-attributes '(3 3))
 
 			(ask self 'initialize-obj)
-			;; (delegate self %super-class 'initialize-obj)
 			))
 
 	((type) (lambda (self)
@@ -86,13 +85,144 @@
 				(error
 				 "Initialize vertex-attributes, too!"))))
 
-	((draw) (lambda (self)
-		  (delegate self %super-class 'draw)))
+	;; ((draw) (lambda (self)
+	;;	  (delegate self %super-class 'draw)))
 
 	((destroy) (lambda (self)
 		     (declare (ignore self))
 		     ;; destroy
 
+		     (ask %super-class 'destroy)))
+
+	(t (get-method message %super-class))))))
+
+(defun sphere-default-attributes (&optional (l nil))
+  (list (first l) (second l) (third l)))
+
+(defun generate-sphere-vertex (radius angle0 angle1 step0 step1
+			       type state acc)
+  (if (< 90.0 angle0)
+      acc
+      (if (< 360.0 angle1)
+	  (generate-sphere-vertex radius (+ step0 angle0) 0.0 step0 step1
+				  type state acc)
+	  (cond ((= state 0)
+		 (generate-sphere-vertex radius
+					 (+ step0 angle0) angle1
+					 step0 step1
+					 type 1
+					 (append acc
+					   (list (coerce (* radius (cos (rad angle0))
+							    (sin (rad angle1)))
+							 type)
+						 (coerce (* radius
+							    (sin (rad angle0)))
+							 type)
+						 (coerce (* radius (cos (rad angle0))
+							    (cos (rad angle1)))
+							 type)))))
+
+		 (t (generate-sphere-vertex radius
+					     (- angle0 step0) (+ angle1 step1)
+					     step0 step1
+					     type 0
+					     (append acc
+					       (list (coerce (* radius (cos (rad angle0))
+								(sin (rad angle1)))
+							     type)
+						     (coerce (* radius
+								(sin (rad angle0)))
+							     type)
+						     (coerce (* radius (cos (rad angle0))
+								(cos (rad angle1)))
+							     type)))))))))
+
+(defun make-pure-sphere (&key
+			   (radius 1.0)
+			   (angle0 -90.0)
+			   (angle1 0.0)
+			   (step0 10.0)
+			   (step1 20.0)
+			   (type 'single-float))
+  (let ((%super-class (make-root))
+
+	(%points (generate-sphere-vertex radius angle0 angle1 step0 step1
+					 type 0 nil)) ; TOO BIG procedure at runtime :(
+	(%attr-generate-fns nil)
+	(%vertex-attributes '(3))
+	(%vertexes nil))
+
+    (lambda (message)
+      (case message
+	((assemblef-vertexes)
+	 (lambda (self)
+	   (declare (ignore self))
+	   (labels ((iter (points num-of-points-vertex vertex acc)
+		      (cond ((null points) (values (append acc (list 1.0 1.0 1.0)) vertex))
+			    ((= 3 num-of-points-vertex)
+			     (let ((attrs (mapcan #'(lambda (fn) (funcall fn vertex))
+						  %attr-generate-fns)))
+			       (iter points 0 nil (append acc attrs))))
+			    (t (iter (cdr points)
+				     (+ 1 num-of-points-vertex)
+				     (append vertex (list (car points)))
+				     (append acc (list (car points))))))))
+	     (multiple-value-bind (vertexes last-vertex) (iter %points 0 nil nil)
+	       (setf %vertexes
+		     (append vertexes
+			     (mapcan #'(lambda (fn)
+					 (let ((attr (funcall fn last-vertex)))
+					   (setf %vertex-attributes
+						 (append %vertex-attributes
+							 (list (length attr))))
+					   attr))
+				     %attr-generate-fns)))))))
+
+	((addf-fns) (lambda (self &rest fns)
+		      (declare (ignore self))
+		      (mapc #'(lambda (fn)
+				(setf %attr-generate-fns
+				      (append %attr-generate-fns (list fn))))
+			    fns)))
+
+	((type) (lambda (self)
+		  (declare (ignore self))
+		  (extend-type 'pure-sphere %super-class)))
+
+	((is-a) (lambda (self type)
+		  (member type (ask self 'type))))
+
+	((get-vertexes) (lambda (self)
+			  (declare (ignore self))
+			  (if %vertexes
+			      %vertexes
+			      (error "Initialize vertexes, first!"))))
+
+	((get-attributes) (lambda (self)
+			    (declare (ignore self))
+			    %vertex-attributes))
+
+	(t (get-method message %super-class))))))
+
+(defun make-default-sphere ()
+  (let ((%super-class (make-pure-sphere)))
+
+    (lambda (message)
+      (case message
+
+	((setf-vertexes) (lambda (self)
+			(ask self 'addf-fns #'sphere-default-attributes)
+			(ask self 'assemblef-vertexes)))
+
+	((type) (lambda (self)
+		  (declare (ignore self))
+		  (extend-type 'default-sphere %super-class)))
+
+	((is-a) (lambda (self type)
+		  (member type (ask self 'type))))
+
+	((destroy) (lambda (self)
+		     (declare (ignore self))
 		     (ask %super-class 'destroy)))
 
 	(t (get-method message %super-class))))))

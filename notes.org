@@ -134,6 +134,33 @@ to show collecting keywords (TODO, ...) at one buffer
 
 *** counsel-projectile-git-grep (C-c p s i)
 
+* OPP
+
+** UML text notation
+
+*** notation
+
+- association
+------------->
+- inheritance
+-------------#
+- realize / implementation
+- - - - - - -#
+- dependency
+- - - - - - ->
+- aggregation
+-------------O
+- composition
+-------------@
+
+*** coupling
+
+dependency -> association -> aggregation -> composition -> inheritance
+
+** sphere --# draw-able-object
+- hard to implement various sphere --# sphere
+- I will change to dependency relationship
+
 * Daily
 
 ** Implement more hierarchically

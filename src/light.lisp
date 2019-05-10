@@ -4,7 +4,7 @@
 
 ;; TODO: Implement Hierarchy. This is a cube.
 (defun make-light ()
-  (let ((%super-class (make-draw-able-object))
+  (let ((%super-class (make-cube))
 	(%vertexes nil)
 	(%vertex-attributes nil)
 	(%light nil))
@@ -20,10 +20,7 @@
 							 %coordinate-sphere))
 			(setf %vertex-attributes '(3 3))
 
-			(ask self 'initialize-obj)
-
-			;; (delegate self %super-class 'initialize)
-			;; (delegate self %super-class 'initialize-obj)
+			;; (ask self 'initialize-obj)
 			))
 
 	((get-vertexes) (lambda (self)
@@ -39,8 +36,8 @@
 				(error
 				 "Initialize vertex-attributes, too!"))))
 
-	((draw) (lambda (self)
-		  (delegate self %super-class 'draw)))
+	;; ((draw) (lambda (self)
+	;;	  (delegate self %super-class 'draw)))
 
 	((type) (lambda (self)
 		  (declare (ignore self))
