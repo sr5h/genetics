@@ -6,7 +6,7 @@
   (let* ((%super-class (make-root))
 
 	 (%speed 0.5)
-	 (%pos (make-vector 0.0 0.0 10.0))
+	 (%pos (make-vector 0.0 0.0 40.0))
 	 (%t-pos (make-vector 0.0 0.0 0.0))
 	 (%world-up (make-vector 0.0 1.0 0.0))
 	 ;; opposite direction of camera direction

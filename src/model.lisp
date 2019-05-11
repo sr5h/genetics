@@ -18,6 +18,7 @@
 	(%y y)
 	(%screen-width width)
 	(%screen-height height)
+
 	(%window nil)
 	(%context nil)
 	(%camera (make-camera))

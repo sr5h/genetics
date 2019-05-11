@@ -50,14 +50,14 @@
 
 	  ((initialize-obj)
 	   (lambda (self obj i-fn)
+	     (declare (ignore self))
 	     (let* ((verts (ask obj 'get-vertexes))
 		    (verts-length (length verts))
 		    (vert-attrs (ask obj 'get-attributes))
-		    (indices
-		     (funcall i-fn
-			      0 (/ verts-length (reduce #'+ vert-attrs)))) ; TODO:
 
+		    (indices (funcall i-fn obj))
 		    (inds-length (length indices))
+
 		    (verts-gl-array (gl:alloc-gl-array :float verts-length))
 		    (indices-gl-array (gl:alloc-gl-array :unsigned-int inds-length))
 		    (index 0))

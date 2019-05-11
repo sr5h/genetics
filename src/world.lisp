@@ -1,176 +1,133 @@
 (in-package :genetics)
 
+(defmacro define-polygon-object ((object) generate-polygon-fn generate-indices-fn
+				 &body body)
+  (let ((obj (gensym)))
+    `(let ((,object (make-draw-able-object))
+	   (,obj (funcall ,generate-polygon-fn)))
+       (ask ,object 'initialize-gl)
+       (ask ,obj 'set-vertexes)
+       (ask ,object 'initialize-obj
+	    ,obj ,generate-indices-fn)
+       ,@body
+       ,object)))
+
 (defun make-world (glsl-id)
-  (let (;; objects
-	(%coords nil)
-	(%sphere nil)
-	(%cube nil)
-	(%tet nil)
-	(%light nil))
+  (let ((%objects nil))
 
     (lambda (message)
       (case message
 
 	((initialize)
 	 (lambda (self)
-	   (declare (ignore self))
 	   ;; sphere
-	   (setf %sphere (make-draw-able-object))
-	   (ask %sphere 'initialize-gl)
-	   (let ((obj (make-default-sphere)))
-	     (print (ask obj 'set-vertexes))
-	     (ask %sphere 'initialize-obj obj #'generate-rect-indices))
-
+	   (define-polygon-object (sphere) #'make-default-sphere #'generate-rect-indices
+	     (loop :for i :from 0 :to 10
+	       :do (ask self 'add-object
+			sphere (random 5.0) (random 5.0) (random 5.0))))
 	   ;; cube
-	   (setf %cube (make-draw-able-object))
-	   (ask %cube 'initialize-gl)
-	   (let ((obj (make-default-cube)))
-	     (ask obj 'set-vertexes)
-	     (ask %cube 'initialize-obj obj #'generate-cube-indices))
-	   ;; ;; tetrahedron
-	   ;; (setf %tet (make-tetrahedron))
-	   ;; (ask %tet 'initialize)
+	   (define-polygon-object (cube) #'make-default-cube #'generate-cube-indices
+	     (ask self 'add-object
+		  cube (random 5.0) (random 5.0) (random 5.0)))
 	   ;; light
-	   (setf %light (make-draw-able-object))
-	   (ask %light 'initialize-gl)
-	   (let ((obj (make-light)))
-	     (ask obj 'set-vertexes)
-	     (ask %light 'initialize-obj obj #'generate-rect-indices))
+	   (define-polygon-object (light) #'make-light #'generate-rect-indices
+	     (ask self 'add-object
+		  light -3.5 4.0 10.0))))
 
-
-	   ;; objects coordinates
-	   (setf %coords `((,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
-			   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
-			   (,(* -1.0 (random 5.0)) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-			   (,(random 5.0) ,(random 5.0) ,(* -1.0 (random 5.0)))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(random 5.0) ,(random 5.0))
-			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-			   (,(random 5.0) ,(* -1.0 (random 5.0)) ,(random 5.0))
-			   (-3.5 3.0 10.0) ; light position
-			   ))))
-
-	;; TODO: put-object
-	
+	((add-object) (lambda (self obj &optional (x 0.0) (y 0.0) (z 0.0))
+			(declare (ignore self))
+			(assert (ask obj 'is-a 'root) nil "It's is not ~a type" obj)
+			(setf %objects
+			      (append %objects (list (cons obj (make-vector x y z)))))))
 
 	((draw)
-	 (lambda (self view objects)
+	 (lambda (self view)
 	   (declare (ignore self))
-	   (labels ((iter (c o)
+	   (labels ((iter (o)
+		      ;; o is ((obj1 x1 y1 z1) (obj2 x2 y2 z2) ...)
 		      (cond ((null o) t)
-			    ((null c)
-			     (error "coords not sufficient"))
 			    (t (let ((l (mat-to-list (translate (make-matrix)
-								(caar c)
-								(cadar c)
-								(caddar c))))
-				 ;; (tick (sdl2:get-ticks))
+								(ask (cdar o) 'get 1)
+								(ask (cdar o) 'get 2)
+								(ask (cdar o) 'get 3))))
+				     ;; (tick (sdl2:get-ticks))
 				     )
 
-			     (set-uniform-4fv glsl-id "model" l)
-			     (set-uniform-4fv glsl-id "view" (mat-to-list view))
-			     (set-uniform-4fv glsl-id
-					      "projection"
-					      (mat-to-list
-					       (perspective (make-matrix)
-							    45.0
-							    (/ 800.0 600.0)
-							    0.1
-							    100.0)))
-			     
-			     ;; (set-uniform-3f
-			     ;;  glsl-id
-			     ;;  "ranColor"
-			     ;;  (coerce
-			     ;;   (sin (sdl2:get-ticks))
-			     ;;   'single-float)
-			     ;;  (coerce
-			     ;;   (cos (sdl2:get-ticks))
-			     ;;   'single-float)
-			     ;;  (coerce
-			     ;;   (+ 2.0 (sin (sdl2:get-ticks)))
-			     ;;   'single-float))
-			     )
-			   (ask (car o) 'draw)
-			   (iter (cdr c) (cdr o))))))
-	     (iter %coords objects))))
+				 (set-uniform-4fv glsl-id "model" l)
+				 (set-uniform-4fv glsl-id "view" (mat-to-list view))
+				 (set-uniform-4fv glsl-id
+						  "projection"
+						  (mat-to-list
+						   (perspective (make-matrix)
+								45.0
+								(/ 800.0 600.0)
+								0.1
+								100.0)))
+				 
+				 ;; (set-uniform-3f
+				 ;;  glsl-id
+				 ;;  "ranColor"
+				 ;;  (coerce
+				 ;;   (sin (sdl2:get-ticks))
+				 ;;   'single-float)
+				 ;;  (coerce
+				 ;;   (cos (sdl2:get-ticks))
+				 ;;   'single-float)
+				 ;;  (coerce
+				 ;;   (+ 2.0 (sin (sdl2:get-ticks)))
+				 ;;   'single-float))
+				 )
+			       (ask (caar o) 'draw)
+			       (iter (cdr o))))))
+	     (iter %objects))))
 
-	((get-sphere) (lambda (self) (declare (ignore self)) %sphere))
-	((get-cube) (lambda (self) (declare (ignore self)) %cube))
-	((get-tet) (lambda (self) (declare (ignore self)) %tet))
-	((get-light) (lambda (self) (declare (ignore self)) %light))
-
-	((get-coords) (lambda (self) (declare (ignore self)) %coords))
+	((get-object) (lambda (self index)
+			(declare (ignore self))
+			(labels ((iter (n l)
+				 (cond ((null l) (error "didn't find object of index."))
+				       ((= n index) (car l))
+				       (t (iter (+ n 1) (cdr l))))))
+			  (iter 0 %objects))))
+	;; TODO:
+	((modify-object-position) (lambda (self index v)
+			       (declare (ignore self))
+			       (labels ((iter (n l)
+					      (cond ((null l)
+						     (error "didn't find object of index."))
+						    ((= n index)
+						     (let ((object (car l)))
+						       (setf (cdr object) v)))
+						    (t (iter (+ n 1) (cdr l))))))
+				 (iter 0 %objects))))
 
 	((destroy) (lambda (self)
 		     (declare (ignore self))
-		     (ask %sphere 'destroy)
-		     (ask %cube 'destroy)
-		     ;; (ask %tet 'destroy)
-		     (ask %light 'destroy)
-		     (destroy)
-		     ))))))
+		     (if (not (null %objects))
+		       (loop :for obj :in %objects :do
+			 (ask (car obj) 'destroy)))))))))
 
 
 ;; for modeling interactively
-(let ((o nil))
-  (defun draw (world view)
-    (let ((sphere (ask world 'get-sphere))
-	  (cube (ask world 'get-cube))
-	  ;; (tet (ask world 'get-tet))
-	  (light (ask world 'get-light))
+(defun draw (world view)
+  ;; (let* ((r 10)
+  ;;	 (v (cdr (ask world 'get-object r)))
+  ;;	 (l (sqrt (+ (expt (ask v 'get 1) 2)
+  ;;		     (expt (ask v 'get 2) 2)
+  ;;		     (expt (ask v 'get 3) 2))))
+  ;;	 (new-v (make-vector (* l (cos (/ (sdl2:get-ticks) 1000)))
+  ;;			     (ask v 'get 2)
+  ;;			     (* l (sin (/ (sdl2:get-ticks) 1000))))))
+  ;;   (ask world 'modify-object-position
+  ;;	 r new-v))
+  (ask world 'add-object (define-polygon-object (sphere)
+			     #'make-default-sphere #'generate-rect-indices)
+       (random 10.0)
+       (random 10.0)
+       (random 10.0))
+  (ask world 'draw view))
 
-	  (coords (length (ask world 'get-coords))))
-
-      (if (null o)
-	  (labels ((iter (c acc n)
-		     (cond ((= c coords) acc)
-			   ((= c (- coords 1)) (iter (+ c 1)
-						     (append acc (list light))
-						     (random 3)))
-			   (t (iter (+ c 1)
-				    (append acc
-					    (list
-						  (case n
-						  ;;   ((0) sphere)
-						    ((1) cube)
-						  ;;   (t tet)
-						    (t sphere)
-						    )
-						  ))
-				    (random 3))))))
-	    (setf o (iter 0 nil (random 3)))))
-
-	(ask world 'draw view o)))
-
-
-  ;; (ask world 'draw (list sphere sphere))
   ;; (let ((cur-tick (sdl2:get-ticks)))
   ;;   (let ((diff (- cur-tick *tick*))
   ;;	    (term 0))
   ;;	(if (> term diff)
   ;;	    (sdl2:delay (- term diff)))))
-
-  (defun destroy ()
-    (loop :for i :in o :do
-      (ask i 'destroy))
-    (setf o nil)))

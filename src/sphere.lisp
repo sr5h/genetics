@@ -180,9 +180,6 @@
 			  (ask %vertexes 'assemblef-vertexes
 			       (ask %super-class 'get-points))))
 
-	((set-indices) (lambda (self indices)
-			 ))
-
 	((get-vertexes) (lambda (self)
 			  (declare (ignore self))
 			  (ask %vertexes 'get-vertexes)))

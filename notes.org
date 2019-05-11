@@ -169,6 +169,8 @@ dependency -> association -> aggregation -> composition -> inheritance
 
 ** how to make virtual function?
 
+** practice to use macro
+
 ** DONE Implement vector
 
 - State "DONE"       from              [2019-05-04 Sat 16:27]
