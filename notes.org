@@ -165,14 +165,20 @@ dependency -> association -> aggregation -> composition -> inheritance
 
 ** Implement more hierarchically
 
-** upgrade oop
+** upgrade opp
 
 ** how to make virtual function?
 
 ** practice to use macro
 
-** customize lisp indent offset
-
+** DONE customize lisp indent offset
+It's difficult !!!!!!!!!!!!
+- State "DONE"       from              [2019-05-12 Sun 17:26] \\
+  #+BEGIN_SRC emacs-lisp
+  (setq  lisp-indent-function 'common-lisp-indent-function)
+  (put 'define-class 'common-lisp-indent-function
+       '(2 2 (&whole 2 &rest) (&whole 2 &rest (&whole 1 &lambda &body)) &body))
+  #+END_SRC
 ** DONE Implement vector
 
 - State "DONE"       from              [2019-05-04 Sat 16:27]
