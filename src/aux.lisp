@@ -18,7 +18,7 @@
      :collect (car v) :into m-variables
      :else
      :collect (car v) :into args
-    :finally (return (values m-variables (append args v)))))
+     :finally (return (values m-variables (append args v)))))
 
 
 ;; (defune-class test-class nil nil :member-fns (...)) ?
@@ -33,28 +33,28 @@
     (multiple-value-bind
 	  (member-vars keyword-vars) (generate-member-variables member-variables)
 
-    `(defun ,class-name ,keyword-vars
+      `(defun ,class-name ,keyword-vars
 
-       (let* (,@(mapcar #'(lambda (s)
-			    `(,(cdr s)
-			       (,(intern (concatenate 'string
-						      (symbol-name 'make-)
-						      (symbol-name (car s)))))))
-			super-classes-syms)
-	      ,@member-vars
-		)
-	 (labels ,member-fns
-	   (lambda (message)
-	     (case message
-	       ,@body
-	       ((type) (lambda (self)
-			 (declare (ignore self))
-			 (extend-type ',name ,@(mapcar #'(lambda (s) (cdr s))
-						       super-classes-syms))))
-	       ((is-a) (lambda (self type)
-			 (member type (ask self 'type))))
-	       (t (get-method message ,@(mapcar #'(lambda (s) (cdr s))
-						super-classes-syms)))))))))))
+	 (let* (,@(mapcar #'(lambda (s)
+			      `(,(cdr s)
+				 (,(intern (concatenate 'string
+							(symbol-name 'make-)
+							(symbol-name (car s)))))))
+			  super-classes-syms)
+		,@member-vars
+		  )
+	   (labels ,member-fns
+	     (lambda (message)
+	       (case message
+		 ,@body
+		 ((type) (lambda (self)
+			   (declare (ignore self))
+			   (extend-type ',name ,@(mapcar #'(lambda (s) (cdr s))
+							 super-classes-syms))))
+		 ((is-a) (lambda (self type)
+			   (member type (ask self 'type))))
+		 (t (get-method message ,@(mapcar #'(lambda (s) (cdr s))
+						  super-classes-syms)))))))))))
 ;; TODO: many nested
 ;; (defmacro define-class (name (super-classes member-variables &optional member-fns)
 ;;			&body body)

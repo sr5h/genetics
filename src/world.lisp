@@ -13,8 +13,8 @@
        ,object)))
 
 (define-class world (root)
-    ((%objects nil) glsl-id)
-    nil
+  ((%objects nil) glsl-id)
+  nil
   ((initialize)
    (lambda (self)
      ;; sphere
@@ -123,8 +123,8 @@
        (random 10.0))
   (ask world 'draw view))
 
-  ;; (let ((cur-tick (sdl2:get-ticks)))
-  ;;   (let ((diff (- cur-tick *tick*))
-  ;;	    (term 0))
-  ;;	(if (> term diff)
-  ;;	    (sdl2:delay (- term diff)))))
+;; (let ((cur-tick (sdl2:get-ticks)))
+;;   (let ((diff (- cur-tick *tick*))
+;;	    (term 0))
+;;	(if (> term diff)
+;;	    (sdl2:delay (- term diff)))))

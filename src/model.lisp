@@ -7,11 +7,12 @@
 (defun run (model)
   (ask model 'run))
 
-
 ;; model
 (define-class model (root)
-  ((%x x) (%y y) (%screen-width width) (%screen-height height)
-   (%window nil)   (%context nil)
+  ((%x x)
+   (%y y)
+   (%screen-width width) (%screen-height height)
+   (%window nil) (%context nil)
    (%camera (make-camera))
    (%manage-input nil)
    (%glsl-program (make-glsl-program))

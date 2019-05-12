@@ -23,8 +23,8 @@
   (ask v 'to-list))
 
 (define-class vector (root)
-    (a1 a2 &optional (a3 0.0) (type 'single-float))
-    nil
+  (a1 a2 &optional (a3 0.0) (type 'single-float))
+  nil
   ;; vector => vector
   ((cross) (lambda (self v)
 	     (declare (ignore self))

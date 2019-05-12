@@ -112,45 +112,45 @@
 					 step0 step1
 					 type 1
 					 (append acc
-					   (list (coerce (* radius (cos (rad angle0))
-							    (sin (rad angle1)))
-							 type)
-						 (coerce (* radius
-							    (sin (rad angle0)))
-							 type)
-						 (coerce (* radius (cos (rad angle0))
-							    (cos (rad angle1)))
-							 type)))))
+						 (list (coerce (* radius (cos (rad angle0))
+								  (sin (rad angle1)))
+							       type)
+						       (coerce (* radius
+								  (sin (rad angle0)))
+							       type)
+						       (coerce (* radius (cos (rad angle0))
+								  (cos (rad angle1)))
+							       type)))))
 
-		 (t (generate-sphere-vertex radius
-					     (- angle0 step0) (+ angle1 step1)
-					     step0 step1
-					     type 0
-					     (append acc
-					       (list (coerce (* radius (cos (rad angle0))
-								(sin (rad angle1)))
-							     type)
-						     (coerce (* radius
-								(sin (rad angle0)))
-							     type)
-						     (coerce (* radius (cos (rad angle0))
-								(cos (rad angle1)))
-							     type)))))))))
+		(t (generate-sphere-vertex radius
+					   (- angle0 step0) (+ angle1 step1)
+					   step0 step1
+					   type 0
+					   (append acc
+						   (list (coerce (* radius (cos (rad angle0))
+								    (sin (rad angle1)))
+								 type)
+							 (coerce (* radius
+								    (sin (rad angle0)))
+								 type)
+							 (coerce (* radius (cos (rad angle0))
+								    (cos (rad angle1)))
+								 type)))))))))
 
 (define-class pure-sphere (root)
-    ((%points (generate-sphere-vertex radius angle0 angle1 step0 step1 type 0 nil))
-     &key
-     (radius 1.0) (angle0 -90.0) (angle1 0.0) (step0 10.0) (step1 20.0)
-     (type 'single-float))
-    nil
+  ((%points (generate-sphere-vertex radius angle0 angle1 step0 step1 type 0 nil))
+   &key
+   (radius 1.0) (angle0 -90.0) (angle1 0.0) (step0 10.0) (step1 20.0)
+   (type 'single-float))
+  nil
   ((get-points) (lambda (self)
 		  (declare (ignore self))
 		  %points)))
 
 (define-class default-sphere (pure-sphere)
-	;; Is this composition?
-    ((%vertexes (make-object-vertexes)))
-    nil
+  ;; Is this composition?
+  ((%vertexes (make-object-vertexes)))
+  nil
   ((set-vertexes) (lambda (self)
 		    (declare (ignore self))
 		    (ask %vertexes 'addf-fns #'sphere-default-attributes)

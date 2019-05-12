@@ -10,7 +10,7 @@
     -0.5 -0.5 -0.5 -0.5 -0.5 -0.5	; left-down -z
     -0.5  0.5 -0.5 -0.5  0.5 -0.5       ; left-up -z
     ;; TODO: duplicated vertexes . so make cube indices order
-   -0.5 -0.5  0.5 -0.5 -0.5  0.5	; left-down +z
+    -0.5 -0.5  0.5 -0.5 -0.5  0.5	; left-down +z
     -0.5  0.5  0.5 -0.5  0.5  0.5	; left-up +z
 
     -0.5  0.5  0.5 -0.5  0.5  0.5	; left-up +z
@@ -22,7 +22,7 @@
     0.5 -0.5  0.5  0.5 -0.5  0.5	; right-down +z
     -0.5 -0.5 -0.5 -0.5 -0.5 -0.5	; left-down -z
     0.5 -0.5 -0.5  0.5 -0.5 -0.5	; right-down -z
-))
+    ))
 
 (defun generate-cube-vertex (w h l)
   (let ((left (* -1.0 (/ w 2.0)))
@@ -43,9 +43,9 @@
 
 
 (define-class pure-cube (root)
-    ((%points (generate-cube-vertex width height length))
-     &key (width 1.5) (height 1.5) (length 1.5))
-    nil
+  ((%points (generate-cube-vertex width height length))
+   &key (width 1.5) (height 1.5) (length 1.5))
+  nil
   ((get-points) (lambda (self)
 		  (declare (ignore self))
 		  %points)))

@@ -1,24 +1,24 @@
 (in-package :genetics)
 
 (define-class draw-able-object (root)
-    ((%vertex-array-object-id nil)
-     (%vertex-buffer-object-id nil)
-     (%element-buffer-object-id nil)
-     (%indices nil))
+  ((%vertex-array-object-id nil)
+   (%vertex-buffer-object-id nil)
+   (%element-buffer-object-id nil)
+   (%indices nil))
 
-    ((%set-attr-pointers (cnt l stride offset)
-       (cond ((null l))
-	     ;; TODO:
-	     (t
-	      (gl:vertex-attrib-pointer cnt
-					(car l)
-					:float
-					:false
-					(* (cffi:foreign-type-size :float) stride)
-					(* (cffi:foreign-type-size :float) offset))
+  ((%set-attr-pointers (cnt l stride offset)
+     (cond ((null l))
+	   ;; TODO:
+	   (t
+	    (gl:vertex-attrib-pointer cnt
+				      (car l)
+				      :float
+				      :false
+				      (* (cffi:foreign-type-size :float) stride)
+				      (* (cffi:foreign-type-size :float) offset))
 
-	      (gl:enable-vertex-attrib-array cnt)
-	      (%set-attr-pointers (+ cnt 1) (cdr l) stride (+ offset (car l)))))))
+	    (gl:enable-vertex-attrib-array cnt)
+	    (%set-attr-pointers (+ cnt 1) (cdr l) stride (+ offset (car l)))))))
 
 
   ((initialize-gl) (lambda (self)
@@ -81,7 +81,7 @@
        (gl:bind-buffer :array-buffer 0)
        (gl:bind-vertex-array 0))))
 
-	  ;; TODO: if type message doesn't exist,
+  ;; TODO: if type message doesn't exist,
 
   ((get-vao) (lambda (self)
 	       (declare (ignore self))

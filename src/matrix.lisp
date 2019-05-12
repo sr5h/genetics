@@ -44,60 +44,60 @@
 
 ;; matrix class
 (define-class matrix (root)
-    ((%array (%verify-array array type row col))
-     &key (array nil) (row 4) (col 4) (type 'single-float))
-    ;; => setf %array
-    ((%initializef ()
-       ;; (format t "WARNING! Initialized matrix of ~a~%" type)
-       (setf %array (make-array (list row col)
-				:element-type type
-				:initial-element (coerce 0 type))))
+  ((%array (%verify-array array type row col))
+   &key (array nil) (row 4) (col 4) (type 'single-float))
+  ;; => setf %array
+  ((%initializef ()
+     ;; (format t "WARNING! Initialized matrix of ~a~%" type)
+     (setf %array (make-array (list row col)
+			      :element-type type
+			      :initial-element (coerce 0 type))))
 
-     ;; matrix => boolean
-     (%equal-dimensions (mat)
-       (equal (array-dimensions %array) (array-dimensions (ask mat 'get-array))))
+   ;; matrix => boolean
+   (%equal-dimensions (mat)
+     (equal (array-dimensions %array) (array-dimensions (ask mat 'get-array))))
 
-     ;; => boolean
-     (%equal-dimension-last-first-p (obj)	;^ naming
-       (cond ((typep obj 'vector)
-	      (eq (length obj) col))
-	     (t (eq col (ask obj 'get-dimension 0)))))
+   ;; => boolean
+   (%equal-dimension-last-first-p (obj)	;^ naming
+     (cond ((typep obj 'vector)
+	    (eq (length obj) col))
+	   (t (eq col (ask obj 'get-dimension 0)))))
 
-     (%perspective (left right bottom top near far)
-       (make-array (list row col)
-		   :element-type type
-		   :initial-contents
-		   `((,(coerce (/ (* 2.0 near) (- right left)) type)
-		       0.0
-		       ,(coerce (/ (+ right left) (- right left)) type)
-		       0.0)
-		     (0.0
-		      ,(coerce (/ (* 2.0 near) (- top bottom)) type)
-		      ,(coerce (/ (+ top bottom) (- top bottom)) type)
-		      0.0)
-		     (0.0
-		      0.0
-		      ,(coerce (/ (* -1.0 (+ far near)) (- far near)) type)
-		      ,(coerce (/ (* -1.0 2.0 far near) (- far near)) type))
-		     (0.0 0.0 -1.0 0.0))))
+   (%perspective (left right bottom top near far)
+     (make-array (list row col)
+		 :element-type type
+		 :initial-contents
+		 `((,(coerce (/ (* 2.0 near) (- right left)) type)
+		     0.0
+		     ,(coerce (/ (+ right left) (- right left)) type)
+		     0.0)
+		   (0.0
+		    ,(coerce (/ (* 2.0 near) (- top bottom)) type)
+		    ,(coerce (/ (+ top bottom) (- top bottom)) type)
+		    0.0)
+		   (0.0
+		    0.0
+		    ,(coerce (/ (* -1.0 (+ far near)) (- far near)) type)
+		    ,(coerce (/ (* -1.0 2.0 far near) (- far near)) type))
+		   (0.0 0.0 -1.0 0.0))))
 
-     (%ortho (left right bottom top near far)
-       (make-array (list row col)
-		   :element-type type
-		   :initial-contents
-		   `((,(coerce (/ 2.0 (- right left)) type)
-		       0.0
-		       0.0
-		       ,(coerce (* -1.0 (/ (+ right left) (- right left))) type))
-		     (0.0
-		      ,(coerce (/ 2.0 (- top bottom)) type)
-		      0.0
-		      ,(coerce (* -1.0 (/ (+ top bottom) (- top bottom))) type))
-		     (0.0
-		      0.0
-		      ,(coerce (/ -2.0 (- far near)) type)
-		      ,(coerce (* -1.0 (/ (+ far near) (- far near))) type))
-		     (0.0 0.0 0.0 1.0)))))
+   (%ortho (left right bottom top near far)
+     (make-array (list row col)
+		 :element-type type
+		 :initial-contents
+		 `((,(coerce (/ 2.0 (- right left)) type)
+		     0.0
+		     0.0
+		     ,(coerce (* -1.0 (/ (+ right left) (- right left))) type))
+		   (0.0
+		    ,(coerce (/ 2.0 (- top bottom)) type)
+		    0.0
+		    ,(coerce (* -1.0 (/ (+ top bottom) (- top bottom))) type))
+		   (0.0
+		    0.0
+		    ,(coerce (/ -2.0 (- far near)) type)
+		    ,(coerce (* -1.0 (/ (+ far near) (- far near))) type))
+		   (0.0 0.0 0.0 1.0)))))
 
   ;; => matrix
   ((setf-zero) (lambda (self)

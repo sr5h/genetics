@@ -7,14 +7,14 @@
   (ask glsl-id 'set-uniform-3f uniform-name v0 v1 v2))
 
 (define-class glsl-program (root) ((%vertex-shader-id nil)
-					(%fragment-shader-id nil)
-					(%program-id nil))
+				   (%fragment-shader-id nil)
+				   (%program-id nil))
 
-    ((%read-sequence-from-file (file-path)
-			       (with-open-file (file-stream file-path :direction :input)
-				 (let ((contents (make-string (file-length file-stream))))
-				   (read-sequence contents file-stream)
-				   contents))))
+  ((%read-sequence-from-file (file-path)
+     (with-open-file (file-stream file-path :direction :input)
+       (let ((contents (make-string (file-length file-stream))))
+	 (read-sequence contents file-stream)
+	 contents))))
 
   ((compile) (lambda (self vertex-shader-path fragment-shader-path)
 	       (let ((v-str (%read-sequence-from-file vertex-shader-path))
