@@ -3,7 +3,7 @@
 (defmacro rad (ang)
   `(* pi (/ ,ang 180.0)))
 
-
+
 (defmacro %coordinate-sphere-with-color (r a0 a1 type)
   `(list ,(coerce (* r (cos (rad a0)) (sin (rad a1))) type)   ; x
 	 ,(coerce (* r (sin (rad a0))) type)                  ; y
@@ -43,58 +43,58 @@
 				    ,(- angle0 step0) ,(+ angle1 step1) ,step0 ,step1
 				    ,gen-fn
 				    :state 0)))))))
-
-(defun make-sphere ()
-  (let ((%super-class (make-draw-able-object))
-	(%vertexes nil)			; point
-	(%vertex-attributes nil)
-	)
 
-    (lambda (message)
-      (case message
+;; (defun make-sphere ()
+;;   (let ((%super-class (make-draw-able-object))
+;;	(%vertexes nil)			; point
+;;	(%vertex-attributes nil)
+;;	)
 
-	((initialize) (lambda (self)
+;;     (lambda (message)
+;;       (case message
 
-			(ask %super-class 'initialize)
+;;	((initialize) (lambda (self)
 
-			(setf %vertexes (generate-vertex 1.0 -90.0 0.0 10.0 20.0
-							 %coordinate-sphere-with-color))
-			(setf %vertex-attributes '(3 3))
+;;			(ask %super-class 'initialize)
 
-			(ask self 'initialize-obj)
-			))
+;;			(setf %vertexes (generate-vertex 1.0 -90.0 0.0 10.0 20.0
+;;							 %coordinate-sphere-with-color))
+;;			(setf %vertex-attributes '(3 3))
 
-	((type) (lambda (self)
-		  (declare (ignore self))
-		  (extend-type 'sphere %super-class)))
+;;			(ask self 'initialize-obj)
+;;			))
 
-	;; TODO:
-	((is-a) (lambda (self type)
-		  (member type (ask self 'type))))
+;;	((type) (lambda (self)
+;;		  (declare (ignore self))
+;;		  (extend-type 'sphere %super-class)))
 
-	((get-vertexes) (lambda (self)
-			  (declare (ignore self))
-			  (if %vertexes
-			      %vertexes
-			      (error "Initialize vertexes, first!"))))
+;;	;; TODO:
+;;	((is-a) (lambda (self type)
+;;		  (member type (ask self 'type))))
 
-	((get-attributes) (lambda (self)
-			    (declare (ignore self))
-			    (if %vertex-attributes
-				%vertex-attributes
-				(error
-				 "Initialize vertex-attributes, too!"))))
+;;	((get-vertexes) (lambda (self)
+;;			  (declare (ignore self))
+;;			  (if %vertexes
+;;			      %vertexes
+;;			      (error "Initialize vertexes, first!"))))
 
-	;; ((draw) (lambda (self)
-	;;	  (delegate self %super-class 'draw)))
+;;	((get-attributes) (lambda (self)
+;;			    (declare (ignore self))
+;;			    (if %vertex-attributes
+;;				%vertex-attributes
+;;				(error
+;;				 "Initialize vertex-attributes, too!"))))
 
-	((destroy) (lambda (self)
-		     (declare (ignore self))
-		     ;; destroy
+;;	;; ((draw) (lambda (self)
+;;	;;	  (delegate self %super-class 'draw)))
 
-		     (ask %super-class 'destroy)))
+;;	((destroy) (lambda (self)
+;;		     (declare (ignore self))
+;;		     ;; destroy
 
-	(t (get-method message %super-class))))))
+;;		     (ask %super-class 'destroy)))
+
+;;	(t (get-method message %super-class))))))
 
 (defun sphere-default-attributes (&optional (l nil))
   (list (first l) (second l) (third l)))
@@ -136,63 +136,32 @@
 						     (coerce (* radius (cos (rad angle0))
 								(cos (rad angle1)))
 							     type)))))))))
-
-(defun make-pure-sphere (&key
-			   (radius 1.0)
-			   (angle0 -90.0)
-			   (angle1 0.0)
-			   (step0 10.0)
-			   (step1 20.0)
-			   (type 'single-float))
-  (let ((%super-class (make-root))
-	;; TODO: TOO BIG procedure at runtime :(
-	(%points (generate-sphere-vertex radius angle0 angle1 step0 step1
-					 type 0 nil)))
 
-    (lambda (message)
-      (case message
-
-	((get-points) (lambda (self)
-			(declare (ignore self))
-			%points))
-
-	((type) (lambda (self)
+(define-class pure-sphere (root)
+    ((%points (generate-sphere-vertex radius angle0 angle1 step0 step1 type 0 nil))
+     &key
+     (radius 1.0) (angle0 -90.0) (angle1 0.0) (step0 10.0) (step1 20.0)
+     (type 'single-float))
+    nil
+  ((get-points) (lambda (self)
 		  (declare (ignore self))
-		  (extend-type 'pure-sphere %super-class)))
+		  %points)))
 
-	((is-a) (lambda (self type)
-		  (member type (ask self 'type))))
-
-	(t (get-method message %super-class))))))
-
-(defun make-default-sphere ()
-  (let ((%super-class (make-pure-sphere))
+(define-class default-sphere (pure-sphere)
 	;; Is this composition?
-	(%vertexes (make-object-vertexes)))
+    ((%vertexes (make-object-vertexes)))
+    nil
+  ((set-vertexes) (lambda (self)
+		    (declare (ignore self))
+		    (ask %vertexes 'addf-fns #'sphere-default-attributes)
+		    ;; assemble vertextes and attributes
+		    (ask %vertexes 'assemblef-vertexes
+			 (ask self 'get-points))))
 
-    (lambda (message)
-      (case message
+  ((get-vertexes) (lambda (self)
+		    (declare (ignore self))
+		    (ask %vertexes 'get-vertexes)))
 
-	((set-vertexes) (lambda (self)
-			  (declare (ignore self))
-			  (ask %vertexes 'addf-fns #'sphere-default-attributes)
-			  ;; assemble vertextes and attributes
-			  (ask %vertexes 'assemblef-vertexes
-			       (ask %super-class 'get-points))))
-
-	((get-vertexes) (lambda (self)
-			  (declare (ignore self))
-			  (ask %vertexes 'get-vertexes)))
-
-	((get-attributes) (lambda (self)
-			    (declare (ignore self))
-			    (ask %vertexes 'get-attributes)))
-
-	((type) (lambda (self)
-		  (declare (ignore self))
-		  (extend-type 'default-sphere %super-class)))
-
-	((is-a) (lambda (self type)
-		  (member type (ask self 'type))))
-
-	(t (get-method message %super-class))))))
+  ((get-attributes) (lambda (self)
+		      (declare (ignore self))
+		      (ask %vertexes 'get-attributes))))

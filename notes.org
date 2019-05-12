@@ -171,6 +171,8 @@ dependency -> association -> aggregation -> composition -> inheritance
 
 ** practice to use macro
 
+** customize lisp indent offset
+
 ** DONE Implement vector
 
 - State "DONE"       from              [2019-05-04 Sat 16:27]
